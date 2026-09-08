@@ -89,6 +89,7 @@ pub fn cart_print_info() {
 
     let cart_header = CartHeader::from_bytes(&header);
 
+    println!("==================================================");
     println!("Cartridge information:");
     println!("Entry point:       {:02X?}", cart_header.entry_point);
     println!("Title:             {}", text(&cart_header.title));
@@ -112,6 +113,7 @@ pub fn cart_print_info() {
         "Global checksum:   0x{:02X}{:02X}",
         cart_header.global_checksum_hi, cart_header.global_checksum_lo
     );
+    println!("==================================================");
 }
 
 pub fn cart_load(filename: &str) -> bool {
