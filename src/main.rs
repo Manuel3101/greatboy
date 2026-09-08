@@ -1,21 +1,18 @@
-use crate::cart::{cart_load, cart_print_info};
-use crate::cpu::{cpu_execute, cpu_fetch, cpu_reset};
+use crate::emulator_core::{core_init, core_run, core_shutdown};
 
 mod cart;
 mod cpu;
 mod cpu_instructions;
+mod emulator_core;
 
 fn main() {
-    const ROM_PATH: &str = "./roms/Tetris (World) (Rev 1).gb";
+    let init = core_init();
 
-    if !cart_load(ROM_PATH) {
-        println!("Failed to load ROM: {}", ROM_PATH);
+    if !init {
+        println!("Failed to initialize core");
         return;
     }
 
-    cart_print_info();
-
-    cpu_reset();
-    cpu_fetch();
-    cpu_execute();
+    core_run();
+    core_shutdown();
 }

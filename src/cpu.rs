@@ -160,7 +160,6 @@ pub fn cpu_reset() {
 
 pub fn cpu_fetch() {
     let mut cpu = CPU.lock().unwrap();
-    println!("Fetching instruction at PC: 0x{:04X}", cpu.registers.pc);
 
     unsafe {
         // TODO: read from memory bus instead of directly from ROM data
@@ -172,20 +171,30 @@ pub fn cpu_fetch() {
     }
 }
 
-pub fn cpu_execute() {
-    let cpu = CPU.lock().unwrap();
-    println!("Executing instruction at PC: 0x{:04X}", cpu.registers.pc);
+pub fn cpu_execute() -> bool {
+    let execute = {
+        let cpu = CPU.lock().unwrap();
 
-    let Some(execute) = cpu.current_instruction_execute else {
-        let instruction = INSTRUCTIONS[cpu.current_op_code as usize];
-        let pchi: u8 = (cpu.registers.pc >> 8) as u8;
-        let pclo: u8 = (cpu.registers.pc & 0xFF) as u8;
-        println!(
-            "Unknown instruction at: 0x{:02X}{:02X} ({}), instruction_count {}",
-            pchi, pclo, instruction.dissasembly, cpu.instruction_counter
-        );
-        return;
+        let Some(execute) = cpu.current_instruction_execute else {
+            let instruction = INSTRUCTIONS[cpu.current_op_code as usize];
+            let pchi: u8 = (cpu.registers.pc >> 8) as u8;
+            let pclo: u8 = (cpu.registers.pc & 0xFF) as u8;
+            println!(
+                "Unknown instruction {:02X} at: 0x{:02X}{:02X} ({}), instruction_count {}",
+                cpu.current_op_code, pchi, pclo, instruction.dissasembly, cpu.instruction_counter
+            );
+            return false;
+        };
+
+        execute
     };
 
+    // Lock must be released before running the execute function
     execute();
+
+    let mut cpu = CPU.lock().unwrap();
+    cpu.registers.pc = cpu.registers.pc.wrapping_add(1);
+    cpu.instruction_counter += 1;
+
+    true
 }
