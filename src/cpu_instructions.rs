@@ -1,4 +1,4 @@
-use crate::emulator_core::core_advance_cpu_clock;
+use crate::{cart::CARTRIDGE_DATA, cpu::CPU, emulator_core::core_advance_cpu_clock};
 
 #[derive(Debug, Clone, Copy)]
 pub struct GbCpuInstructions {
@@ -12,1285 +12,1302 @@ pub static INSTRUCTIONS: [GbCpuInstructions; 256] = [
     GbCpuInstructions {
         dissasembly: "NOP",
         operand_length: 0,
-        execute: Some(nop),
-    },
+        execute: Some(cpu_nop),
+    }, // 0x00
     GbCpuInstructions {
-        dissasembly: "???",
-        operand_length: 0,
+        dissasembly: "LD BC, nn",
+        operand_length: 1,
         execute: None,
-    },
+    }, // 0x01
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "LD (BC), A",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x02
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "INC BC",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x03
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "INC B",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x04
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "DEC B",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x05
     GbCpuInstructions {
-        dissasembly: "???",
-        operand_length: 0,
+        dissasembly: "LD B, d8",
+        operand_length: 1,
         execute: None,
-    },
+    }, // 0x06
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "RLCA",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x07
     GbCpuInstructions {
-        dissasembly: "???",
-        operand_length: 0,
+        dissasembly: "LD (a16), SP",
+        operand_length: 2,
         execute: None,
-    },
+    }, // 0x08
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "ADD HL, BC",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x09
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "LD A , (BC)",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x0A
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "DEC BC",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x0B
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "INC C",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x0C
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "DEC C",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x0D
     GbCpuInstructions {
-        dissasembly: "???",
-        operand_length: 0,
+        dissasembly: "LD C, d8",
+        operand_length: 1,
         execute: None,
-    },
+    }, // 0x0E
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "RRCA",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x0F
     GbCpuInstructions {
-        dissasembly: "???",
-        operand_length: 0,
+        dissasembly: "STOP",
+        operand_length: 1,
         execute: None,
-    },
+    }, // 0x10
     GbCpuInstructions {
-        dissasembly: "???",
-        operand_length: 0,
+        dissasembly: "LD DE, d16",
+        operand_length: 2,
         execute: None,
-    },
+    }, // 0x11
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "LD (DE), A",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x12
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "INC DE",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x13
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "INC D",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x14
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "DEC D",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x15
     GbCpuInstructions {
-        dissasembly: "???",
-        operand_length: 0,
+        dissasembly: "LD D, d8",
+        operand_length: 1,
         execute: None,
-    },
+    }, // 0x16
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "RLA",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x17
     GbCpuInstructions {
-        dissasembly: "???",
-        operand_length: 0,
+        dissasembly: "JR s8",
+        operand_length: 1,
         execute: None,
-    },
+    }, // 0x18
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "ADD HL, DE",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x19
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "LD A, (DE)",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x1A
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "DEC DE",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x1B
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "INC E",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x1C
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "DEC E",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x1D
     GbCpuInstructions {
-        dissasembly: "???",
-        operand_length: 0,
+        dissasembly: "LD E, d8",
+        operand_length: 1,
         execute: None,
-    },
+    }, // 0x1E
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "RRA",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x1F
     GbCpuInstructions {
-        dissasembly: "???",
-        operand_length: 0,
+        dissasembly: "JR NZ, s8",
+        operand_length: 1,
         execute: None,
-    },
+    }, // 0x20
     GbCpuInstructions {
-        dissasembly: "???",
-        operand_length: 0,
+        dissasembly: "LD HL, d16",
+        operand_length: 2,
         execute: None,
-    },
+    }, // 0x21
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "LD (HL+), A",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x22
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "INC HL",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x23
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "INC H",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x24
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "DEC H",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x25
     GbCpuInstructions {
-        dissasembly: "???",
-        operand_length: 0,
+        dissasembly: "LD H, d8",
+        operand_length: 1,
         execute: None,
-    },
+    }, // 0x26
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "DAA",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x27
     GbCpuInstructions {
-        dissasembly: "???",
-        operand_length: 0,
+        dissasembly: "JR Z, s8",
+        operand_length: 1,
         execute: None,
-    },
+    }, // 0x28
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "ADD HL, HL",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x29
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "LDA A, (HL+)",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x2A
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "DEC HL",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x2B
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "INC L",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x2C
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "DEC L",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x2D
     GbCpuInstructions {
-        dissasembly: "???",
-        operand_length: 0,
+        dissasembly: "LD L, d8",
+        operand_length: 1,
         execute: None,
-    },
+    }, // 0x2E
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "CPL",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x2F
     GbCpuInstructions {
-        dissasembly: "???",
-        operand_length: 0,
+        dissasembly: "JR NC, s8",
+        operand_length: 1,
         execute: None,
-    },
+    }, // 0x30
     GbCpuInstructions {
-        dissasembly: "???",
-        operand_length: 0,
+        dissasembly: "LD SP, d16",
+        operand_length: 2,
         execute: None,
-    },
+    }, // 0x31
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "LD (HL-), A",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x32
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "INC SP",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x33
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "INC (HL)",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x34
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "DEC (HL)",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x35
     GbCpuInstructions {
-        dissasembly: "???",
-        operand_length: 0,
+        dissasembly: "LD (HL), d8",
+        operand_length: 1,
         execute: None,
-    },
+    }, // 0x36
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "SCF",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x37
     GbCpuInstructions {
-        dissasembly: "???",
-        operand_length: 0,
+        dissasembly: "JR C, s8",
+        operand_length: 1,
         execute: None,
-    },
+    }, // 0x38
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "ADD HL, SP",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x39
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "LD A, (HL-)",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x3A
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "DEC SP",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x3B
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "INC A",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x3C
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "DEC A",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x3D
     GbCpuInstructions {
-        dissasembly: "???",
-        operand_length: 0,
+        dissasembly: "LD A, d8",
+        operand_length: 1,
         execute: None,
-    },
+    }, // 0x3E
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "CCF",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x3F
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "LD B, B",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x40
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "LD B, C",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x41
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "LD B, D",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x42
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "LD B, E",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x43
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "LD B, H",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x44
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "LD B, L",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x45
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "LD B, (HL)",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x46
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "LD B, A",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x47
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "LD C, B",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x48
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "LD C, C",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x49
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "LD C, D",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x4A
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "LD C, E",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x4B
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "LD C, H",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x4C
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "LD C, L",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x4D
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "LD C, (HL)",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x4E
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "LD C, A",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x4F
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "LD D, B",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x50
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "LD D, C",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x51
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "LD D, D",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x52
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "LD D, E",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x53
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "LD D, H",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x54
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "LD D, L",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x55
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "LD D, (HL)",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x56
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "LD D, A",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x57
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "LD E, B",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x58
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "LD E, C",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x59
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "LD E, D",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x5A
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "LD E, E",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x5B
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "LD E, H",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x5C
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "LD E, L",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x5D
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "LD E, (HL)",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x5E
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "LD E, A",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x5F
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "LD H, B",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x60
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "LD H, C",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x61
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "LD H, D",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x62
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "LD H, E",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x63
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "LD H, H",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x64
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "LD H, L",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x65
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "LD H, (HL)",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x66
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "LD H, A",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x67
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "LD L, B",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x68
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "LD L, C",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x69
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "LD L, D",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x6A
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "LD L, E",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x6B
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "LD L, H",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x6C
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "LD L, L",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x6D
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "LD L, (HL)",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x6E
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "LD L, A",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x6F
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "LD (HL), B",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x70
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "LD (HL), C",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x71
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "LD (HL), D",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x72
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "LD (HL), E",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x73
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "LD (HL), H",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x74
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "LD (HL), L",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x75
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "HALT",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x76
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "LD (HL), A",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x77
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "LD A, B",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x78
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "LD A, C",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x79
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "LD A, D",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x7A
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "LD A, E",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x7B
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "LD A, H",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x7C
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "LD A, L",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x7D
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "LD A, (HL)",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x7E
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "LD A, A",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x7F
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "ADD A, B",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x80
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "ADD A, C",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x81
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "ADD A, D",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x82
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "ADD A, E",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x83
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "ADD A, H",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x84
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "ADD A, L",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x85
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "ADD A, (HL)",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x86
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "ADD A, A",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x87
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "ADC A, B",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x88
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "ADC A, C",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x89
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "ADC A, D",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x8A
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "ADC A, E",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x8B
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "ADC A, H",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x8C
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "ADC A, L",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x8D
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "ADC A, (HL)",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x8E
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "ADC A, A",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x8F
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "SUB B",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x90
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "SUB C",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x91
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "SUB D",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x92
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "SUB E",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x93
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "SUB H",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x94
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "SUB L",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x95
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "SUB (HL)",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x96
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "SUB A",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x97
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "SBC A, B",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x98
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "SBC A, C",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x99
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "SBC A, D",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x9A
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "SBC A, E",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x9B
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "SBC A, H",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x9C
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "SBC A, L",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x9D
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "SBC A, (HL)",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x9E
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "SBC A, A",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0x9F
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "AND B",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0xA0
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "AND C",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0xA1
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "AND D",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0xA2
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "AND E",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0xA3
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "AND H",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0xA4
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "AND L",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0xA5
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "AND (HL)",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0xA6
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "AND A",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0xA7
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "XOR B",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0xA8
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "XOR C",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0xA9
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "XOR D",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0xAA
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "XOR E",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0xAB
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "XOR H",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0xAC
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "XOR L",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0xAD
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "XOR (HL)",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0xAE
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "XOR A",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0xAF
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "OR B",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0xB0
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "OR C",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0xB1
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "OR D",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0xB2
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "OR E",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0xB3
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "OR H",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0xB4
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "OR L",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0xB5
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "OR (HL)",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0xB6
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "OR A",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0xB7
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "CP B",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0xB8
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "CP C",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0xB9
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "CP D",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0xBA
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "CP E",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0xBB
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "CP H",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0xBC
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "CP L",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0xBD
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "CP (HL)",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0xBE
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "CP A",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0xBF
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "RET NZ",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0xC0
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "POP BC",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0xC1
     GbCpuInstructions {
-        dissasembly: "???",
-        operand_length: 0,
+        dissasembly: "JP NZ, a16",
+        operand_length: 2,
         execute: None,
-    },
+    }, // 0xC2
     GbCpuInstructions {
-        dissasembly: "???",
-        operand_length: 0,
-        execute: None,
-    },
+        dissasembly: "JP a16",
+        operand_length: 2,
+        execute: Some(cpu_jp_a16),
+    }, // 0xC3
     GbCpuInstructions {
-        dissasembly: "???",
-        operand_length: 0,
+        dissasembly: "CALL NZ, a16",
+        operand_length: 2,
         execute: None,
-    },
+    }, // 0xC4
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "PUSH BC",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0xC5
     GbCpuInstructions {
-        dissasembly: "???",
-        operand_length: 0,
+        dissasembly: "ADD A, a8",
+        operand_length: 1,
         execute: None,
-    },
+    }, // 0xC6
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "RST 0",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0xC7
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "RET Z",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0xC8
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "RET",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0xC9
     GbCpuInstructions {
-        dissasembly: "???",
-        operand_length: 0,
+        dissasembly: "JP Z, a16",
+        operand_length: 2,
         execute: None,
-    },
+    }, // 0xCA
     GbCpuInstructions {
         dissasembly: "???",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0xCB
     GbCpuInstructions {
-        dissasembly: "???",
-        operand_length: 0,
+        dissasembly: "CALL Z, a16",
+        operand_length: 2,
         execute: None,
-    },
+    }, // 0xCC
     GbCpuInstructions {
-        dissasembly: "???",
-        operand_length: 0,
+        dissasembly: "CALL a16",
+        operand_length: 2,
         execute: None,
-    },
+    }, // 0xCD
     GbCpuInstructions {
-        dissasembly: "???",
-        operand_length: 0,
+        dissasembly: "ADC A, d8",
+        operand_length: 1,
         execute: None,
-    },
+    }, // 0xCE
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "RST 1",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0xCF
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "RET NC",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0xD0
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "POP DE",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0xD1
     GbCpuInstructions {
-        dissasembly: "???",
-        operand_length: 0,
+        dissasembly: "JP NC, a16",
+        operand_length: 2,
         execute: None,
-    },
+    }, // 0xD2
     GbCpuInstructions {
         dissasembly: "???",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0xD3
     GbCpuInstructions {
-        dissasembly: "???",
-        operand_length: 0,
+        dissasembly: "CALL NC, a16",
+        operand_length: 2,
         execute: None,
-    },
+    }, // 0xD4
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "PUSH DE",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0xD5
     GbCpuInstructions {
-        dissasembly: "???",
-        operand_length: 0,
+        dissasembly: "SUB d8",
+        operand_length: 1,
         execute: None,
-    },
+    }, // 0xD6
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "RST 2",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0xD7
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "RET C",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0xD8
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "RETI",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0xD9
     GbCpuInstructions {
-        dissasembly: "???",
-        operand_length: 0,
+        dissasembly: "JP C, a16",
+        operand_length: 2,
         execute: None,
-    },
+    }, // 0xDA
     GbCpuInstructions {
         dissasembly: "???",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0xDB
     GbCpuInstructions {
-        dissasembly: "???",
-        operand_length: 0,
+        dissasembly: "CALL C, a16",
+        operand_length: 2,
         execute: None,
-    },
+    }, // 0xDC
     GbCpuInstructions {
         dissasembly: "???",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0xDD
     GbCpuInstructions {
-        dissasembly: "???",
-        operand_length: 0,
+        dissasembly: "SBC A, d8",
+        operand_length: 1,
         execute: None,
-    },
+    }, // 0xDE
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "RST 3",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0xDF
     GbCpuInstructions {
-        dissasembly: "???",
-        operand_length: 0,
+        dissasembly: "LD (a8), A",
+        operand_length: 1,
         execute: None,
-    },
+    }, // 0xE0
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "POP HL",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0xE1
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "LD (C), A",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0xE2
     GbCpuInstructions {
         dissasembly: "???",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0xE3
     GbCpuInstructions {
         dissasembly: "???",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0xE4
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "PUSH HL",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0xE5
     GbCpuInstructions {
-        dissasembly: "???",
-        operand_length: 0,
+        dissasembly: "AND d8",
+        operand_length: 1,
         execute: None,
-    },
+    }, // 0xE6
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "RST 4",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0xE7
     GbCpuInstructions {
-        dissasembly: "???",
-        operand_length: 0,
+        dissasembly: "ADD Sp, s8",
+        operand_length: 1,
         execute: None,
-    },
+    }, // 0xE8
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "JP HL",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0xE9
     GbCpuInstructions {
-        dissasembly: "???",
-        operand_length: 0,
+        dissasembly: "LD (a16), A",
+        operand_length: 2,
         execute: None,
-    },
+    }, // 0xEA
     GbCpuInstructions {
         dissasembly: "???",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0xEB
     GbCpuInstructions {
         dissasembly: "???",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0xEC
     GbCpuInstructions {
         dissasembly: "???",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0xED
     GbCpuInstructions {
-        dissasembly: "???",
-        operand_length: 0,
+        dissasembly: "XOR d8",
+        operand_length: 1,
         execute: None,
-    },
+    }, // 0xEE
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "RST 5",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0xEF
     GbCpuInstructions {
-        dissasembly: "???",
-        operand_length: 0,
+        dissasembly: "LD A, (a8)",
+        operand_length: 1,
         execute: None,
-    },
+    }, // 0xF0
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "POP AF",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0xF1
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "LD A, (C)",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0xF2
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "DI",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0xF3
     GbCpuInstructions {
         dissasembly: "???",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0xF4
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "PUSH AF",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0xF5
     GbCpuInstructions {
-        dissasembly: "???",
-        operand_length: 0,
+        dissasembly: "OR d8",
+        operand_length: 1,
         execute: None,
-    },
+    }, // 0xF6
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "RST 6",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0xF7
     GbCpuInstructions {
-        dissasembly: "???",
-        operand_length: 0,
+        dissasembly: "LD HL, SP+s8",
+        operand_length: 1,
         execute: None,
-    },
+    }, // 0xF8
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "LD SP, HL",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0xF9
     GbCpuInstructions {
-        dissasembly: "???",
-        operand_length: 0,
+        dissasembly: "LD A, (a16)",
+        operand_length: 2,
         execute: None,
-    },
+    }, // 0xFA
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "EI",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0xFB
     GbCpuInstructions {
         dissasembly: "???",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0xFC
     GbCpuInstructions {
         dissasembly: "???",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0xFD
     GbCpuInstructions {
-        dissasembly: "???",
-        operand_length: 0,
+        dissasembly: "CP d8",
+        operand_length: 1,
         execute: None,
-    },
+    }, // 0xFE
     GbCpuInstructions {
-        dissasembly: "???",
+        dissasembly: "RST 7",
         operand_length: 0,
         execute: None,
-    },
+    }, // 0xFF
 ];
 
-fn nop() {
+fn cpu_nop() {
+    core_advance_cpu_clock(4);
+}
+
+fn cpu_jp_a16() {
+    core_advance_cpu_clock(4);
+    let mut cpu = CPU.lock().unwrap();
+
+    let low = unsafe { CARTRIDGE_DATA[usize::from(cpu.registers.pc)] };
+    cpu.registers.pc = cpu.registers.pc.wrapping_add(1);
+
+    let high = unsafe { CARTRIDGE_DATA[usize::from(cpu.registers.pc)] };
+    cpu.registers.pc = cpu.registers.pc.wrapping_add(1);
+
+    let address = u16::from_le_bytes([low, high]);
+
+    core_advance_cpu_clock(4);
+    cpu.registers.pc = address;
     core_advance_cpu_clock(4);
 }
