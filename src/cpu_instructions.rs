@@ -1301,6 +1301,7 @@ fn cpu_jp_a16() {
 
     let low = memory_bus_read(usize::from(cpu.registers.pc));
     cpu.registers.pc = cpu.registers.pc.wrapping_add(1);
+    core_advance_cpu_clock(4);
 
     let high = memory_bus_read(usize::from(cpu.registers.pc));
     cpu.registers.pc = cpu.registers.pc.wrapping_add(1);
