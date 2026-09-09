@@ -4,6 +4,7 @@ mod cart;
 mod cpu;
 mod cpu_instructions;
 mod emulator_core;
+mod memory_bus;
 
 fn main() {
     let init = core_init();

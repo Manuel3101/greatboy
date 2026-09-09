@@ -1,6 +1,6 @@
 use std::sync::{LazyLock, Mutex};
 
-use crate::{cart::CARTRIDGE_DATA, cpu_instructions::INSTRUCTIONS};
+use crate::{cpu_instructions::INSTRUCTIONS, memory_bus::memory_bus_read};
 
 pub static CPU: LazyLock<Mutex<Cpu>> = std::sync::LazyLock::new(|| Mutex::new(Cpu::new()));
 
@@ -161,14 +161,11 @@ pub fn cpu_reset() {
 pub fn cpu_fetch() {
     let mut cpu = CPU.lock().unwrap();
 
-    unsafe {
-        // TODO: read from memory bus instead of directly from ROM data
-        let op_code = CARTRIDGE_DATA[cpu.registers.pc as usize];
-        let instruction = INSTRUCTIONS[op_code as usize];
+    let op_code = memory_bus_read(cpu.registers.pc as usize);
+    let instruction = INSTRUCTIONS[op_code as usize];
 
-        cpu.current_op_code = op_code;
-        cpu.current_instruction_execute = instruction.execute;
-    }
+    cpu.current_op_code = op_code;
+    cpu.current_instruction_execute = instruction.execute;
 }
 
 pub fn cpu_execute() -> bool {

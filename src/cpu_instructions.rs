@@ -1,4 +1,4 @@
-use crate::{cart::CARTRIDGE_DATA, cpu::CPU, emulator_core::core_advance_cpu_clock};
+use crate::{cpu::CPU, emulator_core::core_advance_cpu_clock, memory_bus::memory_bus_read};
 
 #[derive(Debug, Clone, Copy)]
 pub struct GbCpuInstructions {
@@ -1299,10 +1299,10 @@ fn cpu_jp_a16() {
     core_advance_cpu_clock(4);
     let mut cpu = CPU.lock().unwrap();
 
-    let low = unsafe { CARTRIDGE_DATA[usize::from(cpu.registers.pc)] };
+    let low = memory_bus_read(usize::from(cpu.registers.pc));
     cpu.registers.pc = cpu.registers.pc.wrapping_add(1);
 
-    let high = unsafe { CARTRIDGE_DATA[usize::from(cpu.registers.pc)] };
+    let high = memory_bus_read(usize::from(cpu.registers.pc));
     cpu.registers.pc = cpu.registers.pc.wrapping_add(1);
 
     let address = u16::from_le_bytes([low, high]);
