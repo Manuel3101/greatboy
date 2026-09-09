@@ -42,8 +42,8 @@ pub fn core_shutdown() {
     }
 }
 
-pub fn core_advance_cpu_clock(cycles: u32) {
+pub fn core_advance_cpu_clock(clocks: u32) {
     unsafe {
-        CORE_CLOCK_COUNTER += cycles;
+        CORE_CLOCK_COUNTER += clocks;
     }
 }
