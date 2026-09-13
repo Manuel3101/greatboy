@@ -35,6 +35,9 @@ pub fn core_run() {
     }
 }
 
+/**
+ * Sets `CORE_QUIT_REQUESTED` to true, which will cause the core to stop running and exit the main loop in `core_run()`.
+ */
 pub fn core_shutdown() {
     println!("Shutting down core");
     unsafe {
@@ -42,6 +45,9 @@ pub fn core_shutdown() {
     }
 }
 
+/**
+ * Advances the CPU clock by the specified number of clock cycles.
+ */
 pub fn core_advance_cpu_clock(clocks: u32) {
     unsafe {
         CORE_CLOCK_COUNTER += clocks;
