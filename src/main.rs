@@ -3,6 +3,7 @@ use crate::emulator_core::{core_init, core_run, core_shutdown};
 mod cart;
 mod cpu;
 mod cpu_instructions;
+mod cpu_registers;
 mod emulator_core;
 mod memory_bus;
 
