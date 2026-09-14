@@ -6,7 +6,6 @@ pub static mut CARTRIDGE_DATA: [u8; MAX_CARTRIDGE_SIZE] = [0; MAX_CARTRIDGE_SIZE
 pub static mut CARTRIDGE_LOADED: bool = false;
 pub static mut RUNTIME_PATH_BUFFER: [u8; MAX_PATH as usize] = [0; MAX_PATH as usize];
 
-// TODO: Check sizes with technical reference to make sure they are correct
 #[allow(dead_code)]
 pub struct CartHeader {
     entry_point: [u8; 4],
