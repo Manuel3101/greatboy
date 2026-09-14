@@ -31,6 +31,9 @@ impl Cpu {
     }
 }
 
+/**
+ * Set the cpu registers to the initial values after boot.
+ */
 pub fn cpu_reset() {
     let mut cpu = CPU.lock().unwrap();
 
