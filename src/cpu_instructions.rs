@@ -4,7 +4,8 @@ use crate::{
     cpu_routines::{
         cpu_routine_adc_a_8, cpu_routine_add_a_8, cpu_routine_add_hl_16, cpu_routine_dec_8,
         cpu_routine_dec_16, cpu_routine_inc_8, cpu_routine_inc_16, cpu_routine_ld_8,
-        cpu_routine_ld_16, cpu_routine_ld_ptr8, cpu_routine_ld_ptr16,
+        cpu_routine_ld_16, cpu_routine_ld_ptr8, cpu_routine_ld_ptr16, cpu_routine_sbc_a_8,
+        cpu_routine_sub_a_8,
     },
     emulator_core::core_advance_cpu_clock,
     memory_bus::memory_bus_read,
@@ -741,32 +742,32 @@ pub static INSTRUCTIONS: [GbCpuInstructions; 256] = [
     GbCpuInstructions {
         dissasembly: "SUB B",
         operand_length: 0,
-        execute: None,
+        execute: Some(cpu_sub_a_b),
     }, // 0x90
     GbCpuInstructions {
         dissasembly: "SUB C",
         operand_length: 0,
-        execute: None,
+        execute: Some(cpu_sub_a_c),
     }, // 0x91
     GbCpuInstructions {
         dissasembly: "SUB D",
         operand_length: 0,
-        execute: None,
+        execute: Some(cpu_sub_a_d),
     }, // 0x92
     GbCpuInstructions {
         dissasembly: "SUB E",
         operand_length: 0,
-        execute: None,
+        execute: Some(cpu_sub_a_e),
     }, // 0x93
     GbCpuInstructions {
         dissasembly: "SUB H",
         operand_length: 0,
-        execute: None,
+        execute: Some(cpu_sub_a_h),
     }, // 0x94
     GbCpuInstructions {
         dissasembly: "SUB L",
         operand_length: 0,
-        execute: None,
+        execute: Some(cpu_sub_a_l),
     }, // 0x95
     GbCpuInstructions {
         dissasembly: "SUB (HL)",
@@ -781,32 +782,32 @@ pub static INSTRUCTIONS: [GbCpuInstructions; 256] = [
     GbCpuInstructions {
         dissasembly: "SBC A, B",
         operand_length: 0,
-        execute: None,
+        execute: Some(cpu_sbc_a_b),
     }, // 0x98
     GbCpuInstructions {
         dissasembly: "SBC A, C",
         operand_length: 0,
-        execute: None,
+        execute: Some(cpu_sbc_a_c),
     }, // 0x99
     GbCpuInstructions {
         dissasembly: "SBC A, D",
         operand_length: 0,
-        execute: None,
+        execute: Some(cpu_sbc_a_d),
     }, // 0x9A
     GbCpuInstructions {
         dissasembly: "SBC A, E",
         operand_length: 0,
-        execute: None,
+        execute: Some(cpu_sbc_a_e),
     }, // 0x9B
     GbCpuInstructions {
         dissasembly: "SBC A, H",
         operand_length: 0,
-        execute: None,
+        execute: Some(cpu_sbc_a_h),
     }, // 0x9C
     GbCpuInstructions {
         dissasembly: "SBC A, L",
         operand_length: 0,
-        execute: None,
+        execute: Some(cpu_sbc_a_l),
     }, // 0x9D
     GbCpuInstructions {
         dissasembly: "SBC A, (HL)",
@@ -1680,6 +1681,66 @@ fn cpu_adc_a_l() {
     let mut cpu = CPU.lock().unwrap();
     cpu_routine_adc_a_8(&mut cpu, Reg8::L);
 } // 0x8D
+
+fn cpu_sub_a_b() {
+    let mut cpu = CPU.lock().unwrap();
+    cpu_routine_sub_a_8(&mut cpu, Reg8::B);
+} // 0x90
+
+fn cpu_sub_a_c() {
+    let mut cpu = CPU.lock().unwrap();
+    cpu_routine_sub_a_8(&mut cpu, Reg8::C);
+} // 0x91
+
+fn cpu_sub_a_d() {
+    let mut cpu = CPU.lock().unwrap();
+    cpu_routine_sub_a_8(&mut cpu, Reg8::D);
+} // 0x92
+
+fn cpu_sub_a_e() {
+    let mut cpu = CPU.lock().unwrap();
+    cpu_routine_sub_a_8(&mut cpu, Reg8::E);
+} // 0x93
+
+fn cpu_sub_a_h() {
+    let mut cpu = CPU.lock().unwrap();
+    cpu_routine_sub_a_8(&mut cpu, Reg8::H);
+} // 0x94
+
+fn cpu_sub_a_l() {
+    let mut cpu = CPU.lock().unwrap();
+    cpu_routine_sub_a_8(&mut cpu, Reg8::L);
+} // 0x95
+
+fn cpu_sbc_a_b() {
+    let mut cpu = CPU.lock().unwrap();
+    cpu_routine_sbc_a_8(&mut cpu, Reg8::B);
+} // 0x98
+
+fn cpu_sbc_a_c() {
+    let mut cpu = CPU.lock().unwrap();
+    cpu_routine_sbc_a_8(&mut cpu, Reg8::C);
+} // 0x99
+
+fn cpu_sbc_a_d() {
+    let mut cpu = CPU.lock().unwrap();
+    cpu_routine_sbc_a_8(&mut cpu, Reg8::D);
+} // 0x9A
+
+fn cpu_sbc_a_e() {
+    let mut cpu = CPU.lock().unwrap();
+    cpu_routine_sbc_a_8(&mut cpu, Reg8::E);
+} // 0x9B
+
+fn cpu_sbc_a_h() {
+    let mut cpu = CPU.lock().unwrap();
+    cpu_routine_sbc_a_8(&mut cpu, Reg8::H);
+} // 0x9C
+
+fn cpu_sbc_a_l() {
+    let mut cpu = CPU.lock().unwrap();
+    cpu_routine_sbc_a_8(&mut cpu, Reg8::L);
+} // 0x9D
 
 fn cpu_jp_nn() {
     core_advance_cpu_clock(4);
