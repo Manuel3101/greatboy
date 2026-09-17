@@ -62,7 +62,7 @@ impl GbCpuRegisters {
         }
     }
 
-    pub fn get8(&self, reg: Reg8) -> u8 {
+    pub fn get8(&self, reg: &Reg8) -> u8 {
         match reg {
             Reg8::A => self.a,
             Reg8::B => self.b,
