@@ -4,6 +4,7 @@ mod cart;
 mod cpu;
 mod cpu_instructions;
 mod cpu_registers;
+mod cpu_routines;
 mod emulator_core;
 mod memory_bus;
 

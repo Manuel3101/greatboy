@@ -15,6 +15,8 @@ pub enum Reg16 {
     BC,
     DE,
     HL,
+    SP,
+    PC,
 }
 
 #[derive(Debug, Clone, Copy, Default)]
@@ -78,6 +80,8 @@ impl GbCpuRegisters {
             Reg16::BC => self.set_bc(value),
             Reg16::DE => self.set_de(value),
             Reg16::HL => self.set_hl(value),
+            Reg16::SP => self.sp = value,
+            Reg16::PC => self.pc = value,
         }
     }
 
@@ -87,6 +91,8 @@ impl GbCpuRegisters {
             Reg16::BC => self.bc(),
             Reg16::DE => self.de(),
             Reg16::HL => self.hl(),
+            Reg16::SP => self.sp,
+            Reg16::PC => self.pc,
         }
     }
 
