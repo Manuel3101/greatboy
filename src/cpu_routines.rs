@@ -112,3 +112,21 @@ pub fn cpu_routine_dec_8(cpu: &mut Cpu, reg: Reg8) {
 
     core_advance_cpu_clock(4);
 }
+
+pub fn cpu_routine_inc_16(cpu: &mut Cpu, reg: Reg16) {
+    core_advance_cpu_clock(4);
+
+    let result = cpu.registers.get16(&reg).wrapping_add(1);
+    cpu.registers.set16(reg, result);
+
+    core_advance_cpu_clock(4);
+}
+
+pub fn cpu_routine_dec_16(cpu: &mut Cpu, reg: Reg16) {
+    core_advance_cpu_clock(4);
+
+    let result = cpu.registers.get16(&reg).wrapping_sub(1);
+    cpu.registers.set16(reg, result);
+
+    core_advance_cpu_clock(4);
+}
