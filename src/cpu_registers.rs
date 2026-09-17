@@ -85,7 +85,7 @@ impl GbCpuRegisters {
         }
     }
 
-    pub fn get16(&self, reg: Reg16) -> u16 {
+    pub fn get16(&self, reg: &Reg16) -> u16 {
         match reg {
             Reg16::AF => self.af(),
             Reg16::BC => self.bc(),
