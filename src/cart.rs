@@ -1,7 +1,7 @@
 use windows::Win32::Foundation::MAX_PATH;
 use windows::Win32::System::Environment::GetCurrentDirectoryA;
 
-pub const MAX_CARTRIDGE_SIZE: usize = 1024 * 1024;
+pub const MAX_CARTRIDGE_SIZE: usize = 64 * 1024;
 pub static mut CARTRIDGE_DATA: [u8; MAX_CARTRIDGE_SIZE] = [0; MAX_CARTRIDGE_SIZE];
 pub static mut CARTRIDGE_LOADED: bool = false;
 pub static mut RUNTIME_PATH_BUFFER: [u8; MAX_PATH as usize] = [0; MAX_PATH as usize];
