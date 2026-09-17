@@ -57,6 +57,15 @@ pub fn cpu_routine_ld_ptr8(cpu: &mut Cpu, reg16: Reg16, reg8: Reg8) {
     memory_bus_write(address, reg8_value);
     core_advance_cpu_clock(4);
 }
+// TODO: check that this is correct
+// reg16 should be loaded into reg8
+pub fn cpu_routine_ld_ptr16(cpu: &mut Cpu, reg8: Reg8, reg16: Reg16) {
+    core_advance_cpu_clock(4);
+    let address = cpu.registers.get8(reg8) as usize;
+    let reg16_value = cpu.registers.get16(reg16) as u8;
+    memory_bus_write(address, reg16_value);
+    core_advance_cpu_clock(4);
+}
 
 pub fn cpu_routine_dec_8(cpu: &mut Cpu, reg: Reg8) {
     core_advance_cpu_clock(4);

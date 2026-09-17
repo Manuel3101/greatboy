@@ -1,7 +1,10 @@
 use crate::{
     cpu::CPU,
     cpu_registers::{Reg8, Reg16},
-    cpu_routines::{cpu_routine_dec_8, cpu_routine_ld_8, cpu_routine_ld_16, cpu_routine_ld_ptr8},
+    cpu_routines::{
+        cpu_routine_dec_8, cpu_routine_ld_8, cpu_routine_ld_16, cpu_routine_ld_ptr8,
+        cpu_routine_ld_ptr16,
+    },
     emulator_core::core_advance_cpu_clock,
     memory_bus::memory_bus_read,
 };
@@ -67,7 +70,7 @@ pub static INSTRUCTIONS: [GbCpuInstructions; 256] = [
     GbCpuInstructions {
         dissasembly: "LD A , (BC)",
         operand_length: 0,
-        execute: None,
+        execute: Some(cpu_ld_a_bc),
     }, // 0x0A
     GbCpuInstructions {
         dissasembly: "DEC BC",
@@ -147,7 +150,7 @@ pub static INSTRUCTIONS: [GbCpuInstructions; 256] = [
     GbCpuInstructions {
         dissasembly: "LD A, (DE)",
         operand_length: 0,
-        execute: None,
+        execute: Some(cpu_ld_a_de),
     }, // 0x1A
     GbCpuInstructions {
         dissasembly: "DEC DE",
@@ -367,7 +370,7 @@ pub static INSTRUCTIONS: [GbCpuInstructions; 256] = [
     GbCpuInstructions {
         dissasembly: "LD B, (HL)",
         operand_length: 0,
-        execute: None,
+        execute: Some(cpu_ld_b_hl),
     }, // 0x46
     GbCpuInstructions {
         dissasembly: "LD B, A",
@@ -407,7 +410,7 @@ pub static INSTRUCTIONS: [GbCpuInstructions; 256] = [
     GbCpuInstructions {
         dissasembly: "LD C, (HL)",
         operand_length: 0,
-        execute: None,
+        execute: Some(cpu_ld_c_hl),
     }, // 0x4E
     GbCpuInstructions {
         dissasembly: "LD C, A",
@@ -447,7 +450,7 @@ pub static INSTRUCTIONS: [GbCpuInstructions; 256] = [
     GbCpuInstructions {
         dissasembly: "LD D, (HL)",
         operand_length: 0,
-        execute: None,
+        execute: Some(cpu_ld_d_hl),
     }, // 0x56
     GbCpuInstructions {
         dissasembly: "LD D, A",
@@ -487,7 +490,7 @@ pub static INSTRUCTIONS: [GbCpuInstructions; 256] = [
     GbCpuInstructions {
         dissasembly: "LD E, (HL)",
         operand_length: 0,
-        execute: None,
+        execute: Some(cpu_ld_e_hl),
     }, // 0x5E
     GbCpuInstructions {
         dissasembly: "LD E, A",
@@ -527,7 +530,7 @@ pub static INSTRUCTIONS: [GbCpuInstructions; 256] = [
     GbCpuInstructions {
         dissasembly: "LD H, (HL)",
         operand_length: 0,
-        execute: None,
+        execute: Some(cpu_ld_h_hl),
     }, // 0x66
     GbCpuInstructions {
         dissasembly: "LD H, A",
@@ -567,7 +570,7 @@ pub static INSTRUCTIONS: [GbCpuInstructions; 256] = [
     GbCpuInstructions {
         dissasembly: "LD L, (HL)",
         operand_length: 0,
-        execute: None,
+        execute: Some(cpu_ld_l_hl),
     }, // 0x6E
     GbCpuInstructions {
         dissasembly: "LD L, A",
@@ -647,7 +650,7 @@ pub static INSTRUCTIONS: [GbCpuInstructions; 256] = [
     GbCpuInstructions {
         dissasembly: "LD A, (HL)",
         operand_length: 0,
-        execute: None,
+        execute: Some(cpu_ld_a_hl),
     }, // 0x7E
     GbCpuInstructions {
         dissasembly: "LD A, A",
@@ -1331,6 +1334,11 @@ fn cpu_ld_b_n() {
     cpu_routine_ld_8(&mut cpu, Reg8::B);
 } // 0x06
 
+fn cpu_ld_a_bc() {
+    let mut cpu = CPU.lock().unwrap();
+    cpu_routine_ld_ptr16(&mut cpu, Reg8::A, Reg16::BC);
+} // 0x0A
+
 fn cpu_dec_c() {
     let mut cpu = CPU.lock().unwrap();
     cpu_routine_dec_8(&mut cpu, Reg8::C);
@@ -1360,6 +1368,11 @@ fn cpu_ld_d_n() {
     let mut cpu = CPU.lock().unwrap();
     cpu_routine_ld_8(&mut cpu, Reg8::D);
 } // 0x16
+
+fn cpu_ld_a_de() {
+    let mut cpu = CPU.lock().unwrap();
+    cpu_routine_ld_ptr16(&mut cpu, Reg8::A, Reg16::DE);
+} // 0x1A
 
 fn cpu_dec_e() {
     let mut cpu = CPU.lock().unwrap();
@@ -1391,30 +1404,6 @@ fn cpu_ld_sp_nn() {
     cpu_routine_ld_16(&mut cpu, Reg16::SP);
 } // 0x31
 
-fn cpu_jp_nn() {
-    core_advance_cpu_clock(4);
-    let mut cpu = CPU.lock().unwrap();
-
-    let low = memory_bus_read(usize::from(cpu.registers.pc));
-    cpu.registers.pc = cpu.registers.pc.wrapping_add(1);
-    core_advance_cpu_clock(4);
-
-    let high = memory_bus_read(usize::from(cpu.registers.pc));
-    cpu.registers.pc = cpu.registers.pc.wrapping_add(1);
-
-    let address = u16::from_le_bytes([low, high]);
-
-    core_advance_cpu_clock(4);
-    cpu.registers.pc = address;
-    core_advance_cpu_clock(4);
-} // 0xC3
-
-fn cpu_ld_h_b() {
-    let mut cpu = CPU.lock().unwrap();
-    cpu.registers.h = cpu.registers.b;
-    core_advance_cpu_clock(4);
-} // 0x60
-
 fn cpu_cpl() {
     let mut cpu = CPU.lock().unwrap();
     cpu.registers.a = !cpu.registers.a;
@@ -1423,15 +1412,20 @@ fn cpu_cpl() {
     core_advance_cpu_clock(4);
 } // 0x2F
 
-fn cpu_ld_e_e() {
-    core_advance_cpu_clock(4);
-} // 0x5B
-
-fn cpu_ld_e_h() {
+fn cpu_dec_h() {
     let mut cpu = CPU.lock().unwrap();
-    cpu.registers.e = cpu.registers.h;
-    core_advance_cpu_clock(4);
-} // 0x5C
+    cpu_routine_dec_8(&mut cpu, Reg8::H);
+} // 0x25
+
+fn cpu_dec_l() {
+    let mut cpu = CPU.lock().unwrap();
+    cpu_routine_dec_8(&mut cpu, Reg8::L);
+} // 0x2D
+
+fn cpu_ld_b_hl() {
+    let mut cpu = CPU.lock().unwrap();
+    cpu_routine_ld_ptr16(&mut cpu, Reg8::B, Reg16::HL);
+} // 0x46
 
 fn cpu_ld_c_d() {
     let mut cpu = CPU.lock().unwrap();
@@ -1445,21 +1439,10 @@ fn cpu_ld_c_e() {
     core_advance_cpu_clock(4);
 } // 0x4B
 
-fn cpu_ld_l_a() {
+fn cpu_ld_c_hl() {
     let mut cpu = CPU.lock().unwrap();
-    cpu.registers.l = cpu.registers.a;
-    core_advance_cpu_clock(4);
-} // 0x6F
-
-fn cpu_dec_h() {
-    let mut cpu = CPU.lock().unwrap();
-    cpu_routine_dec_8(&mut cpu, Reg8::H);
-} // 0x25
-
-fn cpu_dec_l() {
-    let mut cpu = CPU.lock().unwrap();
-    cpu_routine_dec_8(&mut cpu, Reg8::L);
-} // 0x2D
+    cpu_routine_ld_ptr16(&mut cpu, Reg8::C, Reg16::HL);
+} // 0x4E
 
 fn cpu_ld_c_a() {
     let mut cpu = CPU.lock().unwrap();
@@ -1467,11 +1450,53 @@ fn cpu_ld_c_a() {
     core_advance_cpu_clock(4);
 } // 0x4F
 
+fn cpu_ld_d_hl() {
+    let mut cpu = CPU.lock().unwrap();
+    cpu_routine_ld_ptr16(&mut cpu, Reg8::D, Reg16::HL);
+} // 0x56
+
+fn cpu_ld_e_e() {
+    core_advance_cpu_clock(4);
+} // 0x5B
+
+fn cpu_ld_e_h() {
+    let mut cpu = CPU.lock().unwrap();
+    cpu.registers.e = cpu.registers.h;
+    core_advance_cpu_clock(4);
+} // 0x5C
+
+fn cpu_ld_e_hl() {
+    let mut cpu = CPU.lock().unwrap();
+    cpu_routine_ld_ptr16(&mut cpu, Reg8::E, Reg16::HL);
+} // 0x5E
+
+fn cpu_ld_h_b() {
+    let mut cpu = CPU.lock().unwrap();
+    cpu.registers.h = cpu.registers.b;
+    core_advance_cpu_clock(4);
+} // 0x60
+
+fn cpu_ld_h_hl() {
+    let mut cpu = CPU.lock().unwrap();
+    cpu_routine_ld_ptr16(&mut cpu, Reg8::H, Reg16::HL);
+} // 0x66
+
 fn cpu_ld_l_e() {
     let mut cpu = CPU.lock().unwrap();
     cpu.registers.l = cpu.registers.e;
     core_advance_cpu_clock(4);
 } // 0x6B
+
+fn cpu_ld_l_hl() {
+    let mut cpu = CPU.lock().unwrap();
+    cpu_routine_ld_ptr16(&mut cpu, Reg8::L, Reg16::HL);
+} // 0x6E
+
+fn cpu_ld_l_a() {
+    let mut cpu = CPU.lock().unwrap();
+    cpu.registers.l = cpu.registers.a;
+    core_advance_cpu_clock(4);
+} // 0x6F
 
 fn cpu_ld_hl_b() {
     let mut cpu = CPU.lock().unwrap();
@@ -1507,3 +1532,26 @@ fn cpu_ld_hl_a() {
     let mut cpu = CPU.lock().unwrap();
     cpu_routine_ld_ptr8(&mut cpu, Reg16::HL, Reg8::A);
 } // 0x77
+
+fn cpu_ld_a_hl() {
+    let mut cpu = CPU.lock().unwrap();
+    cpu_routine_ld_ptr16(&mut cpu, Reg8::A, Reg16::HL);
+} // 0x7E
+
+fn cpu_jp_nn() {
+    core_advance_cpu_clock(4);
+    let mut cpu = CPU.lock().unwrap();
+
+    let low = memory_bus_read(usize::from(cpu.registers.pc));
+    cpu.registers.pc = cpu.registers.pc.wrapping_add(1);
+    core_advance_cpu_clock(4);
+
+    let high = memory_bus_read(usize::from(cpu.registers.pc));
+    cpu.registers.pc = cpu.registers.pc.wrapping_add(1);
+
+    let address = u16::from_le_bytes([low, high]);
+
+    core_advance_cpu_clock(4);
+    cpu.registers.pc = address;
+    core_advance_cpu_clock(4);
+} // 0xC3
