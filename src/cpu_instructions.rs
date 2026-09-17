@@ -2,8 +2,8 @@ use crate::{
     cpu::CPU,
     cpu_registers::{Reg8, Reg16},
     cpu_routines::{
-        cpu_routine_dec_8, cpu_routine_dec_16, cpu_routine_inc_16, cpu_routine_ld_8,
-        cpu_routine_ld_16, cpu_routine_ld_ptr8, cpu_routine_ld_ptr16,
+        cpu_routine_dec_8, cpu_routine_dec_16, cpu_routine_inc_8, cpu_routine_inc_16,
+        cpu_routine_ld_8, cpu_routine_ld_16, cpu_routine_ld_ptr8, cpu_routine_ld_ptr16,
     },
     emulator_core::core_advance_cpu_clock,
     memory_bus::memory_bus_read,
@@ -1319,6 +1319,11 @@ fn cpu_inc_bc() {
     cpu_routine_inc_16(&mut cpu, Reg16::BC);
 } // 0x03
 
+fn cpu_inc_b() {
+    let mut cpu = CPU.lock().unwrap();
+    cpu_routine_inc_8(&mut cpu, Reg8::B);
+} // 0x04
+
 fn cpu_dec_b() {
     let mut cpu = CPU.lock().unwrap();
     cpu_routine_dec_8(&mut cpu, Reg8::B);
@@ -1340,10 +1345,15 @@ fn cpu_dec_bc() {
     cpu_routine_dec_16(&mut cpu, Reg16::BC);
 } // 0x0B
 
+fn cpu_inc_c() {
+    let mut cpu = CPU.lock().unwrap();
+    cpu_routine_inc_8(&mut cpu, Reg8::C);
+} // 0x0C
+
 fn cpu_dec_c() {
     let mut cpu = CPU.lock().unwrap();
     cpu_routine_dec_8(&mut cpu, Reg8::C);
-} // 0x0C
+} // 0x0D
 
 fn cpu_ld_c_n() {
     let mut cpu = CPU.lock().unwrap();
@@ -1366,6 +1376,11 @@ fn cpu_inc_de() {
     cpu_routine_inc_16(&mut cpu, Reg16::DE);
 } // 0x13
 
+fn cpu_inc_d() {
+    let mut cpu = CPU.lock().unwrap();
+    cpu_routine_inc_8(&mut cpu, Reg8::D);
+} // 0x14
+
 fn cpu_dec_d() {
     let mut cpu = CPU.lock().unwrap();
     cpu_routine_dec_8(&mut cpu, Reg8::D);
@@ -1386,6 +1401,11 @@ fn cpu_dec_de() {
 
     cpu_routine_dec_16(&mut cpu, Reg16::DE);
 } // 0x1B
+
+fn cpu_inc_e() {
+    let mut cpu = CPU.lock().unwrap();
+    cpu_routine_inc_8(&mut cpu, Reg8::E);
+} // 0x1C
 
 fn cpu_dec_e() {
     let mut cpu = CPU.lock().unwrap();
@@ -1408,11 +1428,21 @@ fn cpu_inc_hl() {
     cpu_routine_inc_16(&mut cpu, Reg16::HL);
 } // 0x23
 
+fn cpu_inc_h() {
+    let mut cpu = CPU.lock().unwrap();
+    cpu_routine_inc_8(&mut cpu, Reg8::H);
+} // 0x24
+
 fn cpu_dec_hl() {
     let mut cpu = CPU.lock().unwrap();
 
     cpu_routine_dec_16(&mut cpu, Reg16::HL);
 } // 0x2B
+
+fn cpu_inc_l() {
+    let mut cpu = CPU.lock().unwrap();
+    cpu_routine_inc_8(&mut cpu, Reg8::L);
+} // 0x2C
 
 fn cpu_ld_h_n() {
     let mut cpu = CPU.lock().unwrap();

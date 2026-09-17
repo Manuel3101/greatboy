@@ -68,46 +68,27 @@ pub fn cpu_routine_ld_ptr16(cpu: &mut Cpu, reg8: Reg8, reg16: Reg16) {
 }
 
 pub fn cpu_routine_dec_8(cpu: &mut Cpu, reg: Reg8) {
-    core_advance_cpu_clock(4);
-
+    let selected_reg = cpu.registers.get8(&reg);
     cpu.registers.set_subtract(true);
-    let result: u8 = match reg {
-        Reg8::A => {
-            cpu.registers.set_half_carry(cpu.registers.a & 0x0F == 0x0);
-            cpu.registers.a = cpu.registers.a.wrapping_sub(1);
-            cpu.registers.a
-        }
-        Reg8::B => {
-            cpu.registers.set_half_carry(cpu.registers.b & 0x0F == 0x0);
-            cpu.registers.b = cpu.registers.b.wrapping_sub(1);
-            cpu.registers.b
-        }
-        Reg8::C => {
-            cpu.registers.set_half_carry(cpu.registers.c & 0x0F == 0x0);
-            cpu.registers.c = cpu.registers.c.wrapping_sub(1);
-            cpu.registers.c
-        }
-        Reg8::D => {
-            cpu.registers.set_half_carry(cpu.registers.d & 0x0F == 0x0);
-            cpu.registers.d = cpu.registers.d.wrapping_sub(1);
-            cpu.registers.d
-        }
-        Reg8::E => {
-            cpu.registers.set_half_carry(cpu.registers.e & 0x0F == 0x0);
-            cpu.registers.e = cpu.registers.e.wrapping_sub(1);
-            cpu.registers.e
-        }
-        Reg8::H => {
-            cpu.registers.set_half_carry(cpu.registers.h & 0x0F == 0x0);
-            cpu.registers.h = cpu.registers.h.wrapping_sub(1);
-            cpu.registers.h
-        }
-        Reg8::L => {
-            cpu.registers.set_half_carry(cpu.registers.l & 0x0F == 0x0);
-            cpu.registers.l = cpu.registers.l.wrapping_sub(1);
-            cpu.registers.l
-        }
-    };
+    cpu.registers.set_subtract(false);
+    cpu.registers.set_half_carry(selected_reg & 0x0F == 0x0F);
+
+    let result = selected_reg.wrapping_sub(1);
+    cpu.registers.set8(reg, result);
+
+    cpu.registers.set_zero(result == 0);
+
+    core_advance_cpu_clock(4);
+}
+
+pub fn cpu_routine_inc_8(cpu: &mut Cpu, reg: Reg8) {
+    let selected_reg = cpu.registers.get8(&reg);
+    cpu.registers.set_subtract(false);
+    cpu.registers.set_half_carry(selected_reg & 0x0F == 0x0F);
+
+    let result = selected_reg.wrapping_add(1);
+    cpu.registers.set8(reg, result);
+
     cpu.registers.set_zero(result == 0);
 
     core_advance_cpu_clock(4);
