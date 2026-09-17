@@ -2,8 +2,9 @@ use crate::{
     cpu::CPU,
     cpu_registers::{Reg8, Reg16},
     cpu_routines::{
-        cpu_routine_dec_8, cpu_routine_dec_16, cpu_routine_inc_8, cpu_routine_inc_16,
-        cpu_routine_ld_8, cpu_routine_ld_16, cpu_routine_ld_ptr8, cpu_routine_ld_ptr16,
+        cpu_routine_adc_a_8, cpu_routine_add_a_8, cpu_routine_add_hl_16, cpu_routine_dec_8,
+        cpu_routine_dec_16, cpu_routine_inc_8, cpu_routine_inc_16, cpu_routine_ld_8,
+        cpu_routine_ld_16, cpu_routine_ld_ptr8, cpu_routine_ld_ptr16,
     },
     emulator_core::core_advance_cpu_clock,
     memory_bus::memory_bus_read,
@@ -40,7 +41,7 @@ pub static INSTRUCTIONS: [GbCpuInstructions; 256] = [
     GbCpuInstructions {
         dissasembly: "INC B",
         operand_length: 0,
-        execute: None,
+        execute: Some(cpu_inc_b),
     }, // 0x04
     GbCpuInstructions {
         dissasembly: "DEC B",
@@ -65,7 +66,7 @@ pub static INSTRUCTIONS: [GbCpuInstructions; 256] = [
     GbCpuInstructions {
         dissasembly: "ADD HL, BC",
         operand_length: 0,
-        execute: None,
+        execute: Some(cpu_add_hl_bc),
     }, // 0x09
     GbCpuInstructions {
         dissasembly: "LD A , (BC)",
@@ -80,7 +81,7 @@ pub static INSTRUCTIONS: [GbCpuInstructions; 256] = [
     GbCpuInstructions {
         dissasembly: "INC C",
         operand_length: 0,
-        execute: None,
+        execute: Some(cpu_inc_c),
     }, // 0x0C
     GbCpuInstructions {
         dissasembly: "DEC C",
@@ -120,7 +121,7 @@ pub static INSTRUCTIONS: [GbCpuInstructions; 256] = [
     GbCpuInstructions {
         dissasembly: "INC D",
         operand_length: 0,
-        execute: None,
+        execute: Some(cpu_inc_d),
     }, // 0x14
     GbCpuInstructions {
         dissasembly: "DEC D",
@@ -145,7 +146,7 @@ pub static INSTRUCTIONS: [GbCpuInstructions; 256] = [
     GbCpuInstructions {
         dissasembly: "ADD HL, DE",
         operand_length: 0,
-        execute: None,
+        execute: Some(cpu_add_hl_de),
     }, // 0x19
     GbCpuInstructions {
         dissasembly: "LD A, (DE)",
@@ -160,7 +161,7 @@ pub static INSTRUCTIONS: [GbCpuInstructions; 256] = [
     GbCpuInstructions {
         dissasembly: "INC E",
         operand_length: 0,
-        execute: None,
+        execute: Some(cpu_inc_e),
     }, // 0x1C
     GbCpuInstructions {
         dissasembly: "DEC E",
@@ -200,7 +201,7 @@ pub static INSTRUCTIONS: [GbCpuInstructions; 256] = [
     GbCpuInstructions {
         dissasembly: "INC H",
         operand_length: 0,
-        execute: None,
+        execute: Some(cpu_inc_h),
     }, // 0x24
     GbCpuInstructions {
         dissasembly: "DEC H",
@@ -240,7 +241,7 @@ pub static INSTRUCTIONS: [GbCpuInstructions; 256] = [
     GbCpuInstructions {
         dissasembly: "INC L",
         operand_length: 0,
-        execute: None,
+        execute: Some(cpu_inc_l),
     }, // 0x2C
     GbCpuInstructions {
         dissasembly: "DEC L",
@@ -305,7 +306,7 @@ pub static INSTRUCTIONS: [GbCpuInstructions; 256] = [
     GbCpuInstructions {
         dissasembly: "ADD HL, SP",
         operand_length: 0,
-        execute: None,
+        execute: Some(cpu_add_hl_sp),
     }, // 0x39
     GbCpuInstructions {
         dissasembly: "LD A, (HL-)",
@@ -660,32 +661,32 @@ pub static INSTRUCTIONS: [GbCpuInstructions; 256] = [
     GbCpuInstructions {
         dissasembly: "ADD A, B",
         operand_length: 0,
-        execute: None,
+        execute: Some(cpu_add_a_b),
     }, // 0x80
     GbCpuInstructions {
         dissasembly: "ADD A, C",
         operand_length: 0,
-        execute: None,
+        execute: Some(cpu_add_a_c),
     }, // 0x81
     GbCpuInstructions {
         dissasembly: "ADD A, D",
         operand_length: 0,
-        execute: None,
+        execute: Some(cpu_add_a_d),
     }, // 0x82
     GbCpuInstructions {
         dissasembly: "ADD A, E",
         operand_length: 0,
-        execute: None,
+        execute: Some(cpu_add_a_e),
     }, // 0x83
     GbCpuInstructions {
         dissasembly: "ADD A, H",
         operand_length: 0,
-        execute: None,
+        execute: Some(cpu_add_a_h),
     }, // 0x84
     GbCpuInstructions {
         dissasembly: "ADD A, L",
         operand_length: 0,
-        execute: None,
+        execute: Some(cpu_add_a_l),
     }, // 0x85
     GbCpuInstructions {
         dissasembly: "ADD A, (HL)",
@@ -700,32 +701,32 @@ pub static INSTRUCTIONS: [GbCpuInstructions; 256] = [
     GbCpuInstructions {
         dissasembly: "ADC A, B",
         operand_length: 0,
-        execute: None,
+        execute: Some(cpu_adc_a_b),
     }, // 0x88
     GbCpuInstructions {
         dissasembly: "ADC A, C",
         operand_length: 0,
-        execute: None,
+        execute: Some(cpu_adc_a_c),
     }, // 0x89
     GbCpuInstructions {
         dissasembly: "ADC A, D",
         operand_length: 0,
-        execute: None,
+        execute: Some(cpu_adc_a_d),
     }, // 0x8A
     GbCpuInstructions {
         dissasembly: "ADC A, E",
         operand_length: 0,
-        execute: None,
+        execute: Some(cpu_adc_a_e),
     }, // 0x8B
     GbCpuInstructions {
         dissasembly: "ADC A, H",
         operand_length: 0,
-        execute: None,
+        execute: Some(cpu_adc_a_h),
     }, // 0x8C
     GbCpuInstructions {
         dissasembly: "ADC A, L",
         operand_length: 0,
-        execute: None,
+        execute: Some(cpu_adc_a_l),
     }, // 0x8D
     GbCpuInstructions {
         dissasembly: "ADC A, (HL)",
@@ -1334,6 +1335,11 @@ fn cpu_ld_b_n() {
     cpu_routine_ld_8(&mut cpu, Reg8::B);
 } // 0x06
 
+fn cpu_add_hl_bc() {
+    let mut cpu = CPU.lock().unwrap();
+    cpu_routine_add_hl_16(&mut cpu, Reg16::BC);
+} // 0x09
+
 fn cpu_ld_a_bc() {
     let mut cpu = CPU.lock().unwrap();
     cpu_routine_ld_ptr16(&mut cpu, Reg8::A, Reg16::BC);
@@ -1390,6 +1396,11 @@ fn cpu_ld_d_n() {
     let mut cpu = CPU.lock().unwrap();
     cpu_routine_ld_8(&mut cpu, Reg8::D);
 } // 0x16
+
+fn cpu_add_hl_de() {
+    let mut cpu = CPU.lock().unwrap();
+    cpu_routine_add_hl_16(&mut cpu, Reg16::DE);
+} // 0x19
 
 fn cpu_ld_a_de() {
     let mut cpu = CPU.lock().unwrap();
@@ -1482,6 +1493,11 @@ fn cpu_inc_sp() {
 
     cpu_routine_inc_16(&mut cpu, Reg16::SP);
 } // 0x33
+
+fn cpu_add_hl_sp() {
+    let mut cpu = CPU.lock().unwrap();
+    cpu_routine_add_hl_16(&mut cpu, Reg16::SP);
+} // 0x39
 
 fn cpu_dec_sp() {
     let mut cpu = CPU.lock().unwrap();
@@ -1604,6 +1620,66 @@ fn cpu_ld_a_hl() {
     let mut cpu = CPU.lock().unwrap();
     cpu_routine_ld_ptr16(&mut cpu, Reg8::A, Reg16::HL);
 } // 0x7E
+
+fn cpu_add_a_b() {
+    let mut cpu = CPU.lock().unwrap();
+    cpu_routine_add_a_8(&mut cpu, Reg8::B);
+} // 0x80
+
+fn cpu_add_a_c() {
+    let mut cpu = CPU.lock().unwrap();
+    cpu_routine_add_a_8(&mut cpu, Reg8::C);
+} // 0x81
+
+fn cpu_add_a_d() {
+    let mut cpu = CPU.lock().unwrap();
+    cpu_routine_add_a_8(&mut cpu, Reg8::D);
+} // 0x82
+
+fn cpu_add_a_e() {
+    let mut cpu = CPU.lock().unwrap();
+    cpu_routine_add_a_8(&mut cpu, Reg8::E);
+} // 0x83
+
+fn cpu_add_a_h() {
+    let mut cpu = CPU.lock().unwrap();
+    cpu_routine_add_a_8(&mut cpu, Reg8::H);
+} // 0x84
+
+fn cpu_add_a_l() {
+    let mut cpu = CPU.lock().unwrap();
+    cpu_routine_add_a_8(&mut cpu, Reg8::L);
+} // 0x85
+
+fn cpu_adc_a_b() {
+    let mut cpu = CPU.lock().unwrap();
+    cpu_routine_adc_a_8(&mut cpu, Reg8::B);
+} // 0x88
+
+fn cpu_adc_a_c() {
+    let mut cpu = CPU.lock().unwrap();
+    cpu_routine_adc_a_8(&mut cpu, Reg8::C);
+} // 0x89
+
+fn cpu_adc_a_d() {
+    let mut cpu = CPU.lock().unwrap();
+    cpu_routine_adc_a_8(&mut cpu, Reg8::D);
+} // 0x8A
+
+fn cpu_adc_a_e() {
+    let mut cpu = CPU.lock().unwrap();
+    cpu_routine_adc_a_8(&mut cpu, Reg8::E);
+} // 0x8B
+
+fn cpu_adc_a_h() {
+    let mut cpu = CPU.lock().unwrap();
+    cpu_routine_adc_a_8(&mut cpu, Reg8::H);
+} // 0x8C
+
+fn cpu_adc_a_l() {
+    let mut cpu = CPU.lock().unwrap();
+    cpu_routine_adc_a_8(&mut cpu, Reg8::L);
+} // 0x8D
 
 fn cpu_jp_nn() {
     core_advance_cpu_clock(4);

@@ -111,3 +111,47 @@ pub fn cpu_routine_dec_16(cpu: &mut Cpu, reg: Reg16) {
 
     core_advance_cpu_clock(4);
 }
+
+pub fn cpu_routine_add_a_8(cpu: &mut Cpu, reg8: Reg8) {
+    cpu.registers.set_subtract(false);
+    let reg8_value = cpu.registers.get8(&reg8);
+    let temp = cpu.registers.a;
+    cpu.registers
+        .set_half_carry(temp & 0x0F + reg8_value & 0x0F > 0x0F);
+    cpu.registers.a = cpu.registers.a.wrapping_add(reg8_value);
+    cpu.registers.set_zero(cpu.registers.a == 0);
+    cpu.registers.set_carry(temp > cpu.registers.a);
+    core_advance_cpu_clock(4);
+}
+
+pub fn cpu_routine_adc_a_8(cpu: &mut Cpu, reg8: Reg8) {
+    cpu.registers.set_subtract(false);
+    // TODO: how to get carry flag?
+    let carry = cpu.registers.carry();
+    let reg8_value = cpu.registers.get8(&reg8);
+    let mut temp = cpu.registers.a + reg8_value + carry as u8;
+
+    cpu.registers
+        .set_half_carry(cpu.registers.a & 0x0F + reg8_value & 0x0F > 0x0F);
+    cpu.registers.set_carry(temp >= 0xFF);
+
+    temp &= 0xFF;
+    cpu.registers.a = temp;
+
+    cpu.registers.set_zero(temp == 0);
+    core_advance_cpu_clock(4);
+}
+
+pub fn cpu_routine_add_hl_16(cpu: &mut Cpu, reg16: Reg16) {
+    cpu.registers.set_subtract(false);
+
+    let reg16_value = cpu.registers.get16(&reg16);
+    let temp = cpu.registers.hl().wrapping_add(reg16_value);
+
+    cpu.registers.set_carry(temp >= 0xFFFF);
+    cpu.registers
+        .set_half_carry((cpu.registers.hl() & 0x0FFF) + (reg16_value & 0x0FFF) > 0x0FFF);
+
+    cpu.registers.set_hl(temp);
+    core_advance_cpu_clock(4);
+}
