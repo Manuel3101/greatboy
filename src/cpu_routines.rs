@@ -227,6 +227,35 @@ pub fn cpu_routine_rst_nnnn(cpu: &mut Cpu, address: u16) {
     core_advance_cpu_clock(4);
 }
 
+pub fn cpu_routine_push_16(cpu: &mut Cpu, reg_hi: Reg8, reg_lo: Reg8) {
+    core_advance_cpu_clock(4);
+    cpu.registers.sp = cpu.registers.sp.wrapping_sub(1);
+    cpu.registers.sp &= 0xFFFF;
+    core_advance_cpu_clock(4);
+    let reg_hi_value = cpu.registers.get8(&reg_hi);
+    memory_bus_write(cpu.registers.sp as usize, reg_hi_value);
+    core_advance_cpu_clock(4);
+    cpu.registers.sp = cpu.registers.sp.wrapping_sub(1);
+    cpu.registers.sp &= 0xFFFF;
+    let reg_lo_value = cpu.registers.get8(&reg_lo);
+    memory_bus_write(cpu.registers.sp as usize, reg_lo_value);
+    core_advance_cpu_clock(4);
+}
+
+pub fn cpu_routine_pop_16(cpu: &mut Cpu, reg_hi: Reg8, reg_lo: Reg8) {
+    core_advance_cpu_clock(4);
+    let reg_lo_value = memory_bus_read(cpu.registers.sp as usize);
+    cpu.registers.sp = cpu.registers.sp.wrapping_add(1);
+    cpu.registers.sp &= 0xFFFF;
+    cpu.registers.set8(reg_lo, reg_lo_value);
+    core_advance_cpu_clock(4);
+    let reg_hi_value = memory_bus_read(cpu.registers.sp as usize);
+    cpu.registers.sp &= 0xFFFF;
+    cpu.registers.sp = cpu.registers.sp.wrapping_add(1);
+    cpu.registers.set8(reg_hi, reg_hi_value);
+    core_advance_cpu_clock(4);
+}
+
 pub fn cpu_routine_add_hl_16(cpu: &mut Cpu, reg16: Reg16) {
     cpu.registers.set_subtract(false);
 
