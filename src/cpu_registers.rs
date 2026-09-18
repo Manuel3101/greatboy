@@ -1,6 +1,7 @@
 #[allow(dead_code)]
 pub enum Reg8 {
     A,
+    F,
     B,
     C,
     D,
@@ -53,6 +54,7 @@ impl GbCpuRegisters {
     pub fn set8(&mut self, reg: Reg8, value: u8) {
         match reg {
             Reg8::A => self.a = value,
+            Reg8::F => self.f = value,
             Reg8::B => self.b = value,
             Reg8::C => self.c = value,
             Reg8::D => self.d = value,
@@ -65,6 +67,7 @@ impl GbCpuRegisters {
     pub fn get8(&self, reg: &Reg8) -> u8 {
         match reg {
             Reg8::A => self.a,
+            Reg8::F => self.f,
             Reg8::B => self.b,
             Reg8::C => self.c,
             Reg8::D => self.d,
