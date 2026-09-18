@@ -171,6 +171,46 @@ pub fn cpu_routine_sbc_a_8(cpu: &mut Cpu, reg8: Reg8) {
     core_advance_cpu_clock(4);
 }
 
+pub fn cpu_routine_and_a_8(cpu: &mut Cpu, reg8: Reg8) {
+    cpu.registers.set_half_carry(true);
+    cpu.registers.set_subtract(false);
+    cpu.registers.set_carry(false);
+    let reg8_value = cpu.registers.get8(&reg8);
+    cpu.registers.a &= reg8_value;
+    cpu.registers.set_zero(cpu.registers.a == 0);
+    core_advance_cpu_clock(4);
+}
+
+pub fn cpu_routine_xor_a_8(cpu: &mut Cpu, reg8: Reg8) {
+    cpu.registers.set_half_carry(false);
+    cpu.registers.set_subtract(false);
+    cpu.registers.set_carry(false);
+    let reg8_value = cpu.registers.get8(&reg8);
+    cpu.registers.a ^= reg8_value;
+    cpu.registers.set_zero(cpu.registers.a == 0);
+    core_advance_cpu_clock(4);
+}
+
+pub fn cpu_routine_or_a_8(cpu: &mut Cpu, reg8: Reg8) {
+    cpu.registers.set_half_carry(false);
+    cpu.registers.set_subtract(false);
+    cpu.registers.set_carry(false);
+    let reg8_value = cpu.registers.get8(&reg8);
+    cpu.registers.a |= reg8_value;
+    cpu.registers.set_zero(cpu.registers.a == 0);
+    core_advance_cpu_clock(4);
+}
+
+pub fn cpu_routine_cp_a_8(cpu: &mut Cpu, reg8: Reg8) {
+    let reg8_value = cpu.registers.get8(&reg8);
+    cpu.registers.set_subtract(false);
+    cpu.registers
+        .set_half_carry((cpu.registers.a & 0x0F) < (reg8_value & 0x0F));
+    cpu.registers.set_carry(cpu.registers.a < reg8_value);
+    cpu.registers.set_zero(cpu.registers.a == reg8_value);
+    core_advance_cpu_clock(4);
+}
+
 pub fn cpu_routine_add_hl_16(cpu: &mut Cpu, reg16: Reg16) {
     cpu.registers.set_subtract(false);
 

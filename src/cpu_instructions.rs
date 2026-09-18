@@ -2,10 +2,11 @@ use crate::{
     cpu::CPU,
     cpu_registers::{Reg8, Reg16},
     cpu_routines::{
-        cpu_routine_adc_a_8, cpu_routine_add_a_8, cpu_routine_add_hl_16, cpu_routine_dec_8,
-        cpu_routine_dec_16, cpu_routine_inc_8, cpu_routine_inc_16, cpu_routine_ld_8,
-        cpu_routine_ld_16, cpu_routine_ld_ptr8, cpu_routine_ld_ptr16, cpu_routine_sbc_a_8,
-        cpu_routine_sub_a_8,
+        cpu_routine_adc_a_8, cpu_routine_add_a_8, cpu_routine_add_hl_16, cpu_routine_and_a_8,
+        cpu_routine_cp_a_8, cpu_routine_dec_8, cpu_routine_dec_16, cpu_routine_inc_8,
+        cpu_routine_inc_16, cpu_routine_ld_8, cpu_routine_ld_16, cpu_routine_ld_ptr8,
+        cpu_routine_ld_ptr16, cpu_routine_or_a_8, cpu_routine_sbc_a_8, cpu_routine_sub_a_8,
+        cpu_routine_xor_a_8,
     },
     emulator_core::core_advance_cpu_clock,
     memory_bus::memory_bus_read,
@@ -822,32 +823,32 @@ pub static INSTRUCTIONS: [GbCpuInstructions; 256] = [
     GbCpuInstructions {
         dissasembly: "AND B",
         operand_length: 0,
-        execute: None,
+        execute: Some(cpu_and_a_b),
     }, // 0xA0
     GbCpuInstructions {
         dissasembly: "AND C",
         operand_length: 0,
-        execute: None,
+        execute: Some(cpu_and_a_c),
     }, // 0xA1
     GbCpuInstructions {
         dissasembly: "AND D",
         operand_length: 0,
-        execute: None,
+        execute: Some(cpu_and_a_d),
     }, // 0xA2
     GbCpuInstructions {
         dissasembly: "AND E",
         operand_length: 0,
-        execute: None,
+        execute: Some(cpu_and_a_e),
     }, // 0xA3
     GbCpuInstructions {
         dissasembly: "AND H",
         operand_length: 0,
-        execute: None,
+        execute: Some(cpu_and_a_h),
     }, // 0xA4
     GbCpuInstructions {
         dissasembly: "AND L",
         operand_length: 0,
-        execute: None,
+        execute: Some(cpu_and_a_l),
     }, // 0xA5
     GbCpuInstructions {
         dissasembly: "AND (HL)",
@@ -862,32 +863,32 @@ pub static INSTRUCTIONS: [GbCpuInstructions; 256] = [
     GbCpuInstructions {
         dissasembly: "XOR B",
         operand_length: 0,
-        execute: None,
+        execute: Some(cpu_xor_a_b),
     }, // 0xA8
     GbCpuInstructions {
         dissasembly: "XOR C",
         operand_length: 0,
-        execute: None,
+        execute: Some(cpu_xor_a_c),
     }, // 0xA9
     GbCpuInstructions {
         dissasembly: "XOR D",
         operand_length: 0,
-        execute: None,
+        execute: Some(cpu_xor_a_d),
     }, // 0xAA
     GbCpuInstructions {
         dissasembly: "XOR E",
         operand_length: 0,
-        execute: None,
+        execute: Some(cpu_xor_a_e),
     }, // 0xAB
     GbCpuInstructions {
         dissasembly: "XOR H",
         operand_length: 0,
-        execute: None,
+        execute: Some(cpu_xor_a_h),
     }, // 0xAC
     GbCpuInstructions {
         dissasembly: "XOR L",
         operand_length: 0,
-        execute: None,
+        execute: Some(cpu_xor_a_l),
     }, // 0xAD
     GbCpuInstructions {
         dissasembly: "XOR (HL)",
@@ -902,32 +903,32 @@ pub static INSTRUCTIONS: [GbCpuInstructions; 256] = [
     GbCpuInstructions {
         dissasembly: "OR B",
         operand_length: 0,
-        execute: None,
+        execute: Some(cpu_or_a_b),
     }, // 0xB0
     GbCpuInstructions {
         dissasembly: "OR C",
         operand_length: 0,
-        execute: None,
+        execute: Some(cpu_or_a_c),
     }, // 0xB1
     GbCpuInstructions {
         dissasembly: "OR D",
         operand_length: 0,
-        execute: None,
+        execute: Some(cpu_or_a_d),
     }, // 0xB2
     GbCpuInstructions {
         dissasembly: "OR E",
         operand_length: 0,
-        execute: None,
+        execute: Some(cpu_or_a_e),
     }, // 0xB3
     GbCpuInstructions {
         dissasembly: "OR H",
         operand_length: 0,
-        execute: None,
+        execute: Some(cpu_or_a_h),
     }, // 0xB4
     GbCpuInstructions {
         dissasembly: "OR L",
         operand_length: 0,
-        execute: None,
+        execute: Some(cpu_or_a_l),
     }, // 0xB5
     GbCpuInstructions {
         dissasembly: "OR (HL)",
@@ -942,32 +943,32 @@ pub static INSTRUCTIONS: [GbCpuInstructions; 256] = [
     GbCpuInstructions {
         dissasembly: "CP B",
         operand_length: 0,
-        execute: None,
+        execute: Some(cpu_cp_a_b),
     }, // 0xB8
     GbCpuInstructions {
         dissasembly: "CP C",
         operand_length: 0,
-        execute: None,
+        execute: Some(cpu_cp_a_c),
     }, // 0xB9
     GbCpuInstructions {
         dissasembly: "CP D",
         operand_length: 0,
-        execute: None,
+        execute: Some(cpu_cp_a_d),
     }, // 0xBA
     GbCpuInstructions {
         dissasembly: "CP E",
         operand_length: 0,
-        execute: None,
+        execute: Some(cpu_cp_a_e),
     }, // 0xBB
     GbCpuInstructions {
         dissasembly: "CP H",
         operand_length: 0,
-        execute: None,
+        execute: Some(cpu_cp_a_h),
     }, // 0xBC
     GbCpuInstructions {
         dissasembly: "CP L",
         operand_length: 0,
-        execute: None,
+        execute: Some(cpu_cp_a_l),
     }, // 0xBD
     GbCpuInstructions {
         dissasembly: "CP (HL)",
@@ -1741,6 +1742,126 @@ fn cpu_sbc_a_l() {
     let mut cpu = CPU.lock().unwrap();
     cpu_routine_sbc_a_8(&mut cpu, Reg8::L);
 } // 0x9D
+
+fn cpu_and_a_b() {
+    let mut cpu = CPU.lock().unwrap();
+    cpu_routine_and_a_8(&mut cpu, Reg8::B);
+} // 0xA0
+
+fn cpu_and_a_c() {
+    let mut cpu = CPU.lock().unwrap();
+    cpu_routine_and_a_8(&mut cpu, Reg8::C);
+} // 0xA1
+
+fn cpu_and_a_d() {
+    let mut cpu = CPU.lock().unwrap();
+    cpu_routine_and_a_8(&mut cpu, Reg8::D);
+} // 0xA2
+
+fn cpu_and_a_e() {
+    let mut cpu = CPU.lock().unwrap();
+    cpu_routine_and_a_8(&mut cpu, Reg8::E);
+} // 0xA3
+
+fn cpu_and_a_h() {
+    let mut cpu = CPU.lock().unwrap();
+    cpu_routine_and_a_8(&mut cpu, Reg8::H);
+} // 0xA4
+
+fn cpu_and_a_l() {
+    let mut cpu = CPU.lock().unwrap();
+    cpu_routine_and_a_8(&mut cpu, Reg8::L);
+} // 0xA5
+
+fn cpu_xor_a_b() {
+    let mut cpu = CPU.lock().unwrap();
+    cpu_routine_xor_a_8(&mut cpu, Reg8::B);
+} // 0xA8
+
+fn cpu_xor_a_c() {
+    let mut cpu = CPU.lock().unwrap();
+    cpu_routine_xor_a_8(&mut cpu, Reg8::C);
+} // 0xA9
+
+fn cpu_xor_a_d() {
+    let mut cpu = CPU.lock().unwrap();
+    cpu_routine_xor_a_8(&mut cpu, Reg8::D);
+} // 0xAA
+
+fn cpu_xor_a_e() {
+    let mut cpu = CPU.lock().unwrap();
+    cpu_routine_xor_a_8(&mut cpu, Reg8::E);
+} // 0xAB
+
+fn cpu_xor_a_h() {
+    let mut cpu = CPU.lock().unwrap();
+    cpu_routine_xor_a_8(&mut cpu, Reg8::H);
+} // 0xAC
+
+fn cpu_xor_a_l() {
+    let mut cpu = CPU.lock().unwrap();
+    cpu_routine_xor_a_8(&mut cpu, Reg8::L);
+} // 0xAD
+
+fn cpu_or_a_b() {
+    let mut cpu = CPU.lock().unwrap();
+    cpu_routine_or_a_8(&mut cpu, Reg8::B);
+} // 0xB0
+
+fn cpu_or_a_c() {
+    let mut cpu = CPU.lock().unwrap();
+    cpu_routine_or_a_8(&mut cpu, Reg8::C);
+} // 0xB1
+
+fn cpu_or_a_d() {
+    let mut cpu = CPU.lock().unwrap();
+    cpu_routine_or_a_8(&mut cpu, Reg8::D);
+} // 0xB2
+
+fn cpu_or_a_e() {
+    let mut cpu = CPU.lock().unwrap();
+    cpu_routine_or_a_8(&mut cpu, Reg8::E);
+} // 0xB3
+
+fn cpu_or_a_h() {
+    let mut cpu = CPU.lock().unwrap();
+    cpu_routine_or_a_8(&mut cpu, Reg8::H);
+} // 0xB4
+
+fn cpu_or_a_l() {
+    let mut cpu = CPU.lock().unwrap();
+    cpu_routine_or_a_8(&mut cpu, Reg8::L);
+} // 0xB5
+
+fn cpu_cp_a_b() {
+    let mut cpu = CPU.lock().unwrap();
+    cpu_routine_cp_a_8(&mut cpu, Reg8::B);
+} // 0xB8
+
+fn cpu_cp_a_c() {
+    let mut cpu = CPU.lock().unwrap();
+    cpu_routine_cp_a_8(&mut cpu, Reg8::C);
+} // 0xB9
+
+fn cpu_cp_a_d() {
+    let mut cpu = CPU.lock().unwrap();
+    cpu_routine_cp_a_8(&mut cpu, Reg8::D);
+} // 0xBA
+
+fn cpu_cp_a_e() {
+    let mut cpu = CPU.lock().unwrap();
+    cpu_routine_cp_a_8(&mut cpu, Reg8::E);
+} // 0xBB
+
+fn cpu_cp_a_h() {
+    let mut cpu = CPU.lock().unwrap();
+    cpu_routine_cp_a_8(&mut cpu, Reg8::H);
+} // 0xBC
+
+fn cpu_cp_a_l() {
+    let mut cpu = CPU.lock().unwrap();
+    cpu_routine_cp_a_8(&mut cpu, Reg8::L);
+} // 0xBD
 
 fn cpu_jp_nn() {
     core_advance_cpu_clock(4);
