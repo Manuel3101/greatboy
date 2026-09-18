@@ -211,6 +211,22 @@ pub fn cpu_routine_cp_a_8(cpu: &mut Cpu, reg8: Reg8) {
     core_advance_cpu_clock(4);
 }
 
+pub fn cpu_routine_rst_nnnn(cpu: &mut Cpu, address: u16) {
+    core_advance_cpu_clock(4);
+    cpu.registers.sp = cpu.registers.sp.wrapping_sub(1);
+    cpu.registers.sp &= 0xFFFF;
+    let pchi: u8 = (cpu.registers.pc & 0xFF00) as u8 >> 8;
+    core_advance_cpu_clock(4);
+    memory_bus_write(cpu.registers.sp as usize, pchi);
+    core_advance_cpu_clock(4);
+    cpu.registers.sp = cpu.registers.sp.wrapping_sub(1);
+    cpu.registers.sp &= 0xFFFF;
+    let pclo: u8 = (cpu.registers.pc & 0xFF) as u8;
+    memory_bus_write(cpu.registers.sp as usize, pclo);
+    cpu.registers.pc = address;
+    core_advance_cpu_clock(4);
+}
+
 pub fn cpu_routine_add_hl_16(cpu: &mut Cpu, reg16: Reg16) {
     cpu.registers.set_subtract(false);
 
