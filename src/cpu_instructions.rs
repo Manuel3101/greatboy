@@ -3,10 +3,12 @@ use crate::{
     cpu_registers::{Reg8, Reg16},
     cpu_routines::{
         cpu_routine_adc_a_8, cpu_routine_add_a_8, cpu_routine_add_hl_16, cpu_routine_and_a_8,
-        cpu_routine_cp_a_8, cpu_routine_dec_8, cpu_routine_dec_16, cpu_routine_inc_8,
-        cpu_routine_inc_16, cpu_routine_ld_8, cpu_routine_ld_16, cpu_routine_ld_ptr8,
+        cpu_routine_call_conditional_nnnn, cpu_routine_cp_a_8, cpu_routine_dec_8,
+        cpu_routine_dec_16, cpu_routine_inc_8, cpu_routine_inc_16, cpu_routine_jp_conditional_nnnn,
+        cpu_routine_jr_conditional_n, cpu_routine_ld_8, cpu_routine_ld_16, cpu_routine_ld_ptr8,
         cpu_routine_ld_ptr16, cpu_routine_or_a_8, cpu_routine_pop_16, cpu_routine_push_16,
-        cpu_routine_rst_nnnn, cpu_routine_sbc_a_8, cpu_routine_sub_a_8, cpu_routine_xor_a_8,
+        cpu_routine_ret_conditional, cpu_routine_rst_nnnn, cpu_routine_sbc_a_8,
+        cpu_routine_sub_a_8, cpu_routine_xor_a_8,
     },
     emulator_core::core_advance_cpu_clock,
     memory_bus::memory_bus_read,
@@ -183,7 +185,7 @@ pub static INSTRUCTIONS: [GbCpuInstructions; 256] = [
     GbCpuInstructions {
         dissasembly: "JR NZ, s8",
         operand_length: 1,
-        execute: None,
+        execute: Some(cpu_jr_nz_n),
     }, // 0x20
     GbCpuInstructions {
         dissasembly: "LD HL, d16",
@@ -223,7 +225,7 @@ pub static INSTRUCTIONS: [GbCpuInstructions; 256] = [
     GbCpuInstructions {
         dissasembly: "JR Z, s8",
         operand_length: 1,
-        execute: None,
+        execute: Some(cpu_jr_z_n),
     }, // 0x28
     GbCpuInstructions {
         dissasembly: "ADD HL, HL",
@@ -263,7 +265,7 @@ pub static INSTRUCTIONS: [GbCpuInstructions; 256] = [
     GbCpuInstructions {
         dissasembly: "JR NC, s8",
         operand_length: 1,
-        execute: None,
+        execute: Some(cpu_jr_nc_n),
     }, // 0x30
     GbCpuInstructions {
         dissasembly: "LD SP, d16",
@@ -303,7 +305,7 @@ pub static INSTRUCTIONS: [GbCpuInstructions; 256] = [
     GbCpuInstructions {
         dissasembly: "JR C, s8",
         operand_length: 1,
-        execute: None,
+        execute: Some(cpu_jr_c_n),
     }, // 0x38
     GbCpuInstructions {
         dissasembly: "ADD HL, SP",
@@ -983,7 +985,7 @@ pub static INSTRUCTIONS: [GbCpuInstructions; 256] = [
     GbCpuInstructions {
         dissasembly: "RET NZ",
         operand_length: 0,
-        execute: None,
+        execute: Some(cpu_ret_nz),
     }, // 0xC0
     GbCpuInstructions {
         dissasembly: "POP BC",
@@ -993,7 +995,7 @@ pub static INSTRUCTIONS: [GbCpuInstructions; 256] = [
     GbCpuInstructions {
         dissasembly: "JP NZ, a16",
         operand_length: 2,
-        execute: None,
+        execute: Some(cpu_jp_nz_nn),
     }, // 0xC2
     GbCpuInstructions {
         dissasembly: "JP a16",
@@ -1003,7 +1005,7 @@ pub static INSTRUCTIONS: [GbCpuInstructions; 256] = [
     GbCpuInstructions {
         dissasembly: "CALL NZ, a16",
         operand_length: 2,
-        execute: None,
+        execute: Some(cpu_call_nz_nn),
     }, // 0xC4
     GbCpuInstructions {
         dissasembly: "PUSH BC",
@@ -1023,7 +1025,7 @@ pub static INSTRUCTIONS: [GbCpuInstructions; 256] = [
     GbCpuInstructions {
         dissasembly: "RET Z",
         operand_length: 0,
-        execute: None,
+        execute: Some(cpu_ret_z),
     }, // 0xC8
     GbCpuInstructions {
         dissasembly: "RET",
@@ -1033,7 +1035,7 @@ pub static INSTRUCTIONS: [GbCpuInstructions; 256] = [
     GbCpuInstructions {
         dissasembly: "JP Z, a16",
         operand_length: 2,
-        execute: None,
+        execute: Some(cpu_jp_z_nn),
     }, // 0xCA
     GbCpuInstructions {
         dissasembly: "???",
@@ -1043,7 +1045,7 @@ pub static INSTRUCTIONS: [GbCpuInstructions; 256] = [
     GbCpuInstructions {
         dissasembly: "CALL Z, a16",
         operand_length: 2,
-        execute: None,
+        execute: Some(cpu_call_z_nn),
     }, // 0xCC
     GbCpuInstructions {
         dissasembly: "CALL a16",
@@ -1063,7 +1065,7 @@ pub static INSTRUCTIONS: [GbCpuInstructions; 256] = [
     GbCpuInstructions {
         dissasembly: "RET NC",
         operand_length: 0,
-        execute: None,
+        execute: Some(cpu_ret_nc),
     }, // 0xD0
     GbCpuInstructions {
         dissasembly: "POP DE",
@@ -1073,7 +1075,7 @@ pub static INSTRUCTIONS: [GbCpuInstructions; 256] = [
     GbCpuInstructions {
         dissasembly: "JP NC, a16",
         operand_length: 2,
-        execute: None,
+        execute: Some(cpu_jp_nc_nn),
     }, // 0xD2
     GbCpuInstructions {
         dissasembly: "???",
@@ -1083,7 +1085,7 @@ pub static INSTRUCTIONS: [GbCpuInstructions; 256] = [
     GbCpuInstructions {
         dissasembly: "CALL NC, a16",
         operand_length: 2,
-        execute: None,
+        execute: Some(cpu_call_nc_nn),
     }, // 0xD4
     GbCpuInstructions {
         dissasembly: "PUSH DE",
@@ -1103,7 +1105,7 @@ pub static INSTRUCTIONS: [GbCpuInstructions; 256] = [
     GbCpuInstructions {
         dissasembly: "RET C",
         operand_length: 0,
-        execute: None,
+        execute: Some(cpu_ret_c),
     }, // 0xD8
     GbCpuInstructions {
         dissasembly: "RETI",
@@ -1113,7 +1115,7 @@ pub static INSTRUCTIONS: [GbCpuInstructions; 256] = [
     GbCpuInstructions {
         dissasembly: "JP C, a16",
         operand_length: 2,
-        execute: None,
+        execute: Some(cpu_jp_c_nn),
     }, // 0xDA
     GbCpuInstructions {
         dissasembly: "???",
@@ -1123,7 +1125,7 @@ pub static INSTRUCTIONS: [GbCpuInstructions; 256] = [
     GbCpuInstructions {
         dissasembly: "CALL C, a16",
         operand_length: 2,
-        execute: None,
+        execute: Some(cpu_call_c_nn),
     }, // 0xDC
     GbCpuInstructions {
         dissasembly: "???",
@@ -1430,6 +1432,12 @@ fn cpu_ld_e_n() {
     cpu_routine_ld_8(&mut cpu, Reg8::E);
 } // 0x1E
 
+fn cpu_jr_nz_n() {
+    let mut cpu = CPU.lock().unwrap();
+    let condition = cpu.registers.zero() == false;
+    cpu_routine_jr_conditional_n(&mut cpu, condition);
+} // 0x20
+
 fn cpu_ld_hl_nn() {
     let mut cpu = CPU.lock().unwrap();
     cpu_routine_ld_16(&mut cpu, Reg16::HL);
@@ -1446,6 +1454,22 @@ fn cpu_inc_h() {
     cpu_routine_inc_8(&mut cpu, Reg8::H);
 } // 0x24
 
+fn cpu_dec_h() {
+    let mut cpu = CPU.lock().unwrap();
+    cpu_routine_dec_8(&mut cpu, Reg8::H);
+} // 0x25
+
+fn cpu_ld_h_n() {
+    let mut cpu = CPU.lock().unwrap();
+    cpu_routine_ld_8(&mut cpu, Reg8::H);
+} // 0x26
+
+fn cpu_jr_z_n() {
+    let mut cpu = CPU.lock().unwrap();
+    let condition = cpu.registers.zero() == true;
+    cpu_routine_jr_conditional_n(&mut cpu, condition);
+} // 0x28
+
 fn cpu_dec_hl() {
     let mut cpu = CPU.lock().unwrap();
 
@@ -1457,20 +1481,15 @@ fn cpu_inc_l() {
     cpu_routine_inc_8(&mut cpu, Reg8::L);
 } // 0x2C
 
-fn cpu_ld_h_n() {
+fn cpu_dec_l() {
     let mut cpu = CPU.lock().unwrap();
-    cpu_routine_ld_8(&mut cpu, Reg8::H);
-} // 0x26
+    cpu_routine_dec_8(&mut cpu, Reg8::L);
+} // 0x2D
 
 fn cpu_ld_l_n() {
     let mut cpu = CPU.lock().unwrap();
     cpu_routine_ld_8(&mut cpu, Reg8::L);
 } // 0x2E
-
-fn cpu_ld_sp_nn() {
-    let mut cpu = CPU.lock().unwrap();
-    cpu_routine_ld_16(&mut cpu, Reg16::SP);
-} // 0x31
 
 fn cpu_cpl() {
     let mut cpu = CPU.lock().unwrap();
@@ -1480,21 +1499,28 @@ fn cpu_cpl() {
     core_advance_cpu_clock(4);
 } // 0x2F
 
-fn cpu_dec_h() {
+fn cpu_jr_nc_n() {
     let mut cpu = CPU.lock().unwrap();
-    cpu_routine_dec_8(&mut cpu, Reg8::H);
-} // 0x25
+    let condition = cpu.registers.carry() == false;
+    cpu_routine_jr_conditional_n(&mut cpu, condition);
+} // 0x30
 
-fn cpu_dec_l() {
+fn cpu_ld_sp_nn() {
     let mut cpu = CPU.lock().unwrap();
-    cpu_routine_dec_8(&mut cpu, Reg8::L);
-} // 0x2D
+    cpu_routine_ld_16(&mut cpu, Reg16::SP);
+} // 0x31
 
 fn cpu_inc_sp() {
     let mut cpu = CPU.lock().unwrap();
 
     cpu_routine_inc_16(&mut cpu, Reg16::SP);
 } // 0x33
+
+fn cpu_jr_c_n() {
+    let mut cpu = CPU.lock().unwrap();
+    let condition = cpu.registers.carry() == true;
+    cpu_routine_jr_conditional_n(&mut cpu, condition);
+} // 0x38
 
 fn cpu_add_hl_sp() {
     let mut cpu = CPU.lock().unwrap();
@@ -1863,10 +1889,22 @@ fn cpu_cp_a_l() {
     cpu_routine_cp_a_8(&mut cpu, Reg8::L);
 } // 0xBD
 
+fn cpu_ret_nz() {
+    let mut cpu = CPU.lock().unwrap();
+    let condition = cpu.registers.zero() == false;
+    cpu_routine_ret_conditional(&mut cpu, condition);
+} // 0xC0
+
 fn cpu_pop_bc() {
     let mut cpu = CPU.lock().unwrap();
     cpu_routine_pop_16(&mut cpu, Reg8::B, Reg8::C);
 } // 0xC1
+
+fn cpu_jp_nz_nn() {
+    let mut cpu = CPU.lock().unwrap();
+    let condition = cpu.registers.zero() == false;
+    cpu_routine_jp_conditional_nnnn(&mut cpu, condition);
+} // 0xC2
 
 fn cpu_jp_nn() {
     core_advance_cpu_clock(4);
@@ -1886,6 +1924,12 @@ fn cpu_jp_nn() {
     core_advance_cpu_clock(4);
 } // 0xC3
 
+fn cpu_call_nz_nn() {
+    let mut cpu = CPU.lock().unwrap();
+    let condition = cpu.registers.zero() == false;
+    cpu_routine_call_conditional_nnnn(&mut cpu, condition);
+} // 0xC4
+
 fn cpu_push_bc() {
     let mut cpu = CPU.lock().unwrap();
     cpu_routine_push_16(&mut cpu, Reg8::B, Reg8::C);
@@ -1896,15 +1940,51 @@ fn cpu_rst_00() {
     cpu_routine_rst_nnnn(&mut cpu, 0x0000);
 } // 0xC7
 
+fn cpu_ret_z() {
+    let mut cpu = CPU.lock().unwrap();
+    let condition = cpu.registers.zero() == true;
+    cpu_routine_ret_conditional(&mut cpu, condition);
+} // 0xC8
+
+fn cpu_jp_z_nn() {
+    let mut cpu = CPU.lock().unwrap();
+    let condition = cpu.registers.zero() == true;
+    cpu_routine_jp_conditional_nnnn(&mut cpu, condition);
+} // 0xCA
+
+fn cpu_call_z_nn() {
+    let mut cpu = CPU.lock().unwrap();
+    let condition = cpu.registers.zero() == true;
+    cpu_routine_call_conditional_nnnn(&mut cpu, condition);
+} // 0xCC
+
 fn cpu_rst_08() {
     let mut cpu = CPU.lock().unwrap();
     cpu_routine_rst_nnnn(&mut cpu, 0x0008);
 } // 0xCF
 
+fn cpu_ret_nc() {
+    let mut cpu = CPU.lock().unwrap();
+    let condition = cpu.registers.carry() == false;
+    cpu_routine_ret_conditional(&mut cpu, condition);
+} // 0xD0
+
 fn cpu_pop_de() {
     let mut cpu = CPU.lock().unwrap();
     cpu_routine_pop_16(&mut cpu, Reg8::D, Reg8::E);
 } // 0xD1
+
+fn cpu_jp_nc_nn() {
+    let mut cpu = CPU.lock().unwrap();
+    let condition = cpu.registers.carry() == false;
+    cpu_routine_jp_conditional_nnnn(&mut cpu, condition);
+} // 0xD2
+
+fn cpu_call_nc_nn() {
+    let mut cpu = CPU.lock().unwrap();
+    let condition = cpu.registers.carry() == false;
+    cpu_routine_call_conditional_nnnn(&mut cpu, condition);
+} // 0xD4
 
 fn cpu_push_de() {
     let mut cpu = CPU.lock().unwrap();
@@ -1915,6 +1995,24 @@ fn cpu_rst_10() {
     let mut cpu = CPU.lock().unwrap();
     cpu_routine_rst_nnnn(&mut cpu, 0x0010);
 } // 0xD7
+
+fn cpu_ret_c() {
+    let mut cpu = CPU.lock().unwrap();
+    let condition = cpu.registers.carry() == true;
+    cpu_routine_ret_conditional(&mut cpu, condition);
+} // 0xD8
+
+fn cpu_jp_c_nn() {
+    let mut cpu = CPU.lock().unwrap();
+    let condition = cpu.registers.carry() == true;
+    cpu_routine_jp_conditional_nnnn(&mut cpu, condition);
+} // 0xDA
+
+fn cpu_call_c_nn() {
+    let mut cpu = CPU.lock().unwrap();
+    let condition = cpu.registers.carry() == true;
+    cpu_routine_call_conditional_nnnn(&mut cpu, condition);
+} // 0xDC
 
 fn cpu_rst_18() {
     let mut cpu = CPU.lock().unwrap();

@@ -256,6 +256,86 @@ pub fn cpu_routine_pop_16(cpu: &mut Cpu, reg_hi: Reg8, reg_lo: Reg8) {
     core_advance_cpu_clock(4);
 }
 
+pub fn cpu_routine_call_conditional_nnnn(cpu: &mut Cpu, condition: bool) {
+    core_advance_cpu_clock(4);
+    if condition {
+        let mut temp = memory_bus_read(cpu.registers.pc as usize);
+        cpu.registers.pc = cpu.registers.pc.wrapping_add(1);
+        core_advance_cpu_clock(4);
+        temp |= memory_bus_read(cpu.registers.pc as usize) << 8;
+        core_advance_cpu_clock(4);
+        cpu.registers.sp = cpu.registers.sp.wrapping_sub(1);
+        cpu.registers.sp &= 0xFFFF;
+        let pchi: u8 = (cpu.registers.pc & 0xFF00) as u8 >> 8;
+        core_advance_cpu_clock(4);
+        memory_bus_write(cpu.registers.sp as usize, pchi);
+        core_advance_cpu_clock(4);
+        cpu.registers.sp = cpu.registers.sp.wrapping_sub(1);
+        cpu.registers.sp &= 0xFFFF;
+        let pclo: u8 = (cpu.registers.pc & 0xFF) as u8;
+        memory_bus_write(cpu.registers.sp as usize, pclo);
+        cpu.registers.pc = temp as u16;
+        core_advance_cpu_clock(4);
+    } else {
+        cpu.registers.pc = cpu.registers.pc.wrapping_add(1);
+        core_advance_cpu_clock(4);
+        cpu.registers.pc = cpu.registers.pc.wrapping_add(1);
+        core_advance_cpu_clock(4);
+        cpu.registers.pc &= 0xFFFF;
+    }
+}
+
+pub fn cpu_routine_ret_conditional(cpu: &mut Cpu, condition: bool) {
+    core_advance_cpu_clock(4);
+    if condition {
+        let mut temp = memory_bus_read(cpu.registers.sp as usize);
+        cpu.registers.sp = cpu.registers.sp.wrapping_add(1);
+        core_advance_cpu_clock(4);
+        temp |= memory_bus_read(cpu.registers.sp as usize) << 8;
+        cpu.registers.sp = cpu.registers.sp.wrapping_sub(1);
+        cpu.registers.sp &= 0xFFFF;
+        core_advance_cpu_clock(4);
+        cpu.registers.pc = temp as u16;
+        core_advance_cpu_clock(4);
+        core_advance_cpu_clock(4);
+    } else {
+        core_advance_cpu_clock(4);
+    }
+}
+
+pub fn cpu_routine_jp_conditional_nnnn(cpu: &mut Cpu, condition: bool) {
+    core_advance_cpu_clock(4);
+    if condition {
+        let mut temp = memory_bus_read(cpu.registers.pc as usize);
+        cpu.registers.pc = cpu.registers.pc.wrapping_add(1);
+        core_advance_cpu_clock(4);
+        temp |= memory_bus_read(cpu.registers.pc as usize) << 8;
+        cpu.registers.pc = cpu.registers.pc.wrapping_add(1);
+        core_advance_cpu_clock(4);
+        cpu.registers.pc = temp as u16;
+        core_advance_cpu_clock(4);
+    } else {
+        cpu.registers.pc = cpu.registers.pc.wrapping_add(1);
+        core_advance_cpu_clock(4);
+        cpu.registers.pc = cpu.registers.pc.wrapping_add(1);
+        core_advance_cpu_clock(4);
+    }
+}
+
+pub fn cpu_routine_jr_conditional_n(cpu: &mut Cpu, condition: bool) {
+    core_advance_cpu_clock(4);
+    if condition {
+        let temp = memory_bus_read(cpu.registers.pc as usize);
+        cpu.registers.pc = cpu.registers.pc.wrapping_add(1);
+        core_advance_cpu_clock(4);
+        cpu.registers.pc = cpu.registers.pc.wrapping_add((temp as i8) as u16);
+        core_advance_cpu_clock(4);
+    } else {
+        cpu.registers.pc = cpu.registers.pc.wrapping_add(1);
+        core_advance_cpu_clock(4);
+    }
+}
+
 pub fn cpu_routine_add_hl_16(cpu: &mut Cpu, reg16: Reg16) {
     cpu.registers.set_subtract(false);
 

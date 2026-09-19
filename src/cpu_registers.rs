@@ -139,6 +139,9 @@ impl GbCpuRegisters {
         self.l = l;
     }
 
+    /**
+     * Returns true if the specified flag is set, false otherwise.
+     */
     pub fn flag(&self, flag: Flag) -> bool {
         self.f & (flag as u8) != 0
     }
@@ -153,6 +156,9 @@ impl GbCpuRegisters {
         self.f &= 0xF0; // lower nibble of F is always 0
     }
 
+    /**
+     * Returns true if the zero flag is set, false otherwise.
+     */
     pub fn zero(&self) -> bool {
         self.flag(Flag::Z)
     }
@@ -161,6 +167,9 @@ impl GbCpuRegisters {
         self.set_flag(Flag::Z, value);
     }
 
+    /**
+     * Returns true if the subtract flag is set, false otherwise.
+     */
     pub fn subtract(&self) -> bool {
         self.flag(Flag::N)
     }
@@ -169,6 +178,9 @@ impl GbCpuRegisters {
         self.set_flag(Flag::N, value);
     }
 
+    /**
+     * Returns true if the half carry flag is set, false otherwise.
+     */
     pub fn half_carry(&self) -> bool {
         self.flag(Flag::H)
     }
@@ -177,6 +189,9 @@ impl GbCpuRegisters {
         self.set_flag(Flag::H, value);
     }
 
+    /**
+     * Returns true if the carry flag is set, false otherwise.
+     */
     pub fn carry(&self) -> bool {
         self.flag(Flag::C)
     }
