@@ -11,7 +11,7 @@ use crate::{
         cpu_routine_sub_a_8, cpu_routine_xor_a_8,
     },
     emulator_core::core_advance_cpu_clock,
-    memory_bus::memory_bus_read,
+    memory_bus::{memory_bus_read, memory_bus_write},
 };
 
 #[derive(Debug, Clone, Copy)]
@@ -60,12 +60,12 @@ pub static INSTRUCTIONS: [GbCpuInstructions; 256] = [
     GbCpuInstructions {
         dissasembly: "RLCA",
         operand_length: 0,
-        execute: None,
+        execute: Some(cpu_rlca),
     }, // 0x07
     GbCpuInstructions {
         dissasembly: "LD (a16), SP",
         operand_length: 2,
-        execute: None,
+        execute: Some(cpu_ld_nn_sp),
     }, // 0x08
     GbCpuInstructions {
         dissasembly: "ADD HL, BC",
@@ -100,7 +100,7 @@ pub static INSTRUCTIONS: [GbCpuInstructions; 256] = [
     GbCpuInstructions {
         dissasembly: "RRCA",
         operand_length: 0,
-        execute: None,
+        execute: Some(cpu_rrca),
     }, // 0x0F
     GbCpuInstructions {
         dissasembly: "STOP",
@@ -1339,6 +1339,33 @@ fn cpu_ld_b_n() {
     cpu_routine_ld_8(&mut cpu, Reg8::B);
 } // 0x06
 
+fn cpu_rlca() {
+    core_advance_cpu_clock(4);
+    let mut cpu = CPU.lock().unwrap();
+    let temp = cpu.registers.a;
+    cpu.registers.set_carry(temp & 0x80 != 0);
+    cpu.registers.set_half_carry(false);
+    cpu.registers.set_zero(false);
+    cpu.registers.set_subtract(false);
+
+    cpu.registers.a = cpu.registers.a.rotate_left(1);
+} // 0x07
+
+fn cpu_ld_nn_sp() {
+    let mut cpu = CPU.lock().unwrap();
+    core_advance_cpu_clock(4);
+    let mut temp = memory_bus_read(cpu.registers.pc as usize);
+    cpu.registers.pc = cpu.registers.pc.wrapping_add(1);
+    core_advance_cpu_clock(4);
+    temp |= memory_bus_read(cpu.registers.pc as usize) << 8;
+    cpu.registers.pc = cpu.registers.pc.wrapping_add(1);
+    core_advance_cpu_clock(4);
+    memory_bus_write(temp as usize, (cpu.registers.sp & 0xFF) as u8);
+    temp = temp.wrapping_add(1);
+    memory_bus_write(temp as usize, (cpu.registers.sp & 0xFF00) as u8);
+    core_advance_cpu_clock(4);
+} // 0x08
+
 fn cpu_add_hl_bc() {
     let mut cpu = CPU.lock().unwrap();
     cpu_routine_add_hl_16(&mut cpu, Reg16::BC);
@@ -1369,6 +1396,18 @@ fn cpu_ld_c_n() {
     let mut cpu = CPU.lock().unwrap();
     cpu_routine_ld_8(&mut cpu, Reg8::C);
 } // 0x0E
+
+fn cpu_rrca() {
+    core_advance_cpu_clock(4);
+    let mut cpu = CPU.lock().unwrap();
+    let temp = cpu.registers.a;
+    cpu.registers.set_carry(temp & 0x01 != 0);
+    cpu.registers.set_half_carry(false);
+    cpu.registers.set_zero(false);
+    cpu.registers.set_subtract(false);
+
+    cpu.registers.a = cpu.registers.a.rotate_right(1);
+} // 0x0F
 
 fn cpu_ld_de_nn() {
     let mut cpu = CPU.lock().unwrap();
