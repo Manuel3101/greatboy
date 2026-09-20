@@ -7,6 +7,7 @@ mod cpu_registers;
 mod cpu_routines;
 mod emulator_core;
 mod memory_bus;
+mod timer;
 
 fn main() {
     let init = core_init();

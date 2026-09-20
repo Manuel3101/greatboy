@@ -1,6 +1,7 @@
 use crate::{
     cart::{cart_load, cart_print_info},
     cpu::{cpu_execute, cpu_fetch, cpu_reset},
+    timer::timer_advance_clocks,
 };
 
 pub static mut CORE_CLOCK_COUNTER: u32 = 0;
@@ -48,8 +49,9 @@ pub fn core_shutdown() {
 /**
  * Advances the CPU clock by the specified number of clock cycles.
  */
-pub fn core_advance_cpu_clock(clocks: u32) {
+pub fn core_advance_cpu_clock(clocks: u8) {
+    timer_advance_clocks(clocks);
     unsafe {
-        CORE_CLOCK_COUNTER += clocks;
+        CORE_CLOCK_COUNTER += u32::from(clocks);
     }
 }
