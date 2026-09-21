@@ -110,7 +110,7 @@ pub static INSTRUCTIONS: [GbCpuInstruction; 256] = [
     GbCpuInstruction {
         dissasembly: "STOP",
         operand_length: 1,
-        execute: None,
+        execute: Some(cpu_stop),
     }, // 0x10
     GbCpuInstruction {
         dissasembly: "LD DE, d16",
@@ -1400,6 +1400,21 @@ fn cpu_rrca(cpu: &mut Cpu, bus: &mut Bus) {
 
     cpu.registers.a = cpu.registers.a.rotate_right(1);
 } // 0x0F
+
+fn cpu_stop(cpu: &mut Cpu, bus: &mut Bus) {
+    cpu.core_advance_cpu_clock(&mut bus.timer, 4);
+    if bus.memory.memory_bus_read(cpu.registers.pc as usize) != 0 {
+        cpu.registers.pc = cpu.registers.pc.wrapping_add(1);
+        println!(
+            "CPU: Corrupted STOP at PC: {:0x}, should be 0x00",
+            cpu.registers.pc
+        )
+    }
+
+    bus.timer.div_write(0);
+    cpu.core_advance_cpu_clock(&mut bus.timer, 4);
+    cpu.stopped = true;
+} // 0x10
 
 fn cpu_ld_de_nn(mut cpu: &mut Cpu, mut bus: &mut Bus) {
     cpu_routine_ld_16(&mut cpu, &mut bus, Reg16::DE);

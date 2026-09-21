@@ -1,3 +1,5 @@
+use crate::cpu::{TIMER_STATE, TimerState};
+
 pub struct Timer {
     pub registers: GbTimerRegisters,
     internal_sysclk: u16,
@@ -73,10 +75,21 @@ impl Timer {
                 }
             }
         }
-        self.increase_div(cycles);
+
+        match unsafe { TIMER_STATE } {
+            TimerState::Running => {
+                self.increase_div(cycles);
+            }
+            TimerState::Halted => {
+                // Do nothing, timer is halted
+            }
+            TimerState::Stopped => {
+                return;
+            }
+        }
     }
 
-    fn div_write(&mut self, value: u8) {
+    pub fn div_write(&mut self, value: u8) {
         let prev_sysclk: u16 = self.internal_sysclk;
         self.internal_sysclk = 0x0000;
         self.check_clock_edges(prev_sysclk);

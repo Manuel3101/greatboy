@@ -8,6 +8,15 @@ mod cpu_instructions;
 mod cpu_registers;
 mod cpu_routines;
 
+#[derive(Clone, Copy)]
+pub enum TimerState {
+    Running,
+    Stopped,
+    Halted,
+}
+
+pub static mut TIMER_STATE: TimerState = TimerState::Running;
+
 pub struct Cpu {
     pub core_clock_counter: u32,
     pub registers: GbCpuRegisters,
