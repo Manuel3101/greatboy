@@ -1,4 +1,4 @@
-use std::ops::Shl;
+use std::ops::{Shl, Shr};
 
 use crate::{
     bus::Bus,
@@ -145,12 +145,12 @@ pub static INSTRUCTIONS: [GbCpuInstruction; 256] = [
     GbCpuInstruction {
         dissasembly: "RLA",
         operand_length: 0,
-        execute: None,
+        execute: Some(cpu_rla),
     }, // 0x17
     GbCpuInstruction {
         dissasembly: "JR s8",
         operand_length: 1,
-        execute: None,
+        execute: Some(cpu_jr_n),
     }, // 0x18
     GbCpuInstruction {
         dissasembly: "ADD HL, DE",
@@ -185,7 +185,7 @@ pub static INSTRUCTIONS: [GbCpuInstruction; 256] = [
     GbCpuInstruction {
         dissasembly: "RRA",
         operand_length: 0,
-        execute: None,
+        execute: Some(cpu_rra),
     }, // 0x1F
     GbCpuInstruction {
         dissasembly: "JR NZ, s8",
@@ -200,7 +200,7 @@ pub static INSTRUCTIONS: [GbCpuInstruction; 256] = [
     GbCpuInstruction {
         dissasembly: "LD (HL+), A",
         operand_length: 0,
-        execute: None,
+        execute: Some(cpu_ldi_hl_a),
     }, // 0x22
     GbCpuInstruction {
         dissasembly: "INC HL",
@@ -225,7 +225,7 @@ pub static INSTRUCTIONS: [GbCpuInstruction; 256] = [
     GbCpuInstruction {
         dissasembly: "DAA",
         operand_length: 0,
-        execute: None,
+        execute: Some(cpu_daa),
     }, // 0x27
     GbCpuInstruction {
         dissasembly: "JR Z, s8",
@@ -235,12 +235,12 @@ pub static INSTRUCTIONS: [GbCpuInstruction; 256] = [
     GbCpuInstruction {
         dissasembly: "ADD HL, HL",
         operand_length: 0,
-        execute: None,
+        execute: Some(cpu_add_hl_hl),
     }, // 0x29
     GbCpuInstruction {
-        dissasembly: "LDA A, (HL+)",
+        dissasembly: "LDI A, (HL+)",
         operand_length: 0,
-        execute: None,
+        execute: Some(cpu_ldi_a_hl),
     }, // 0x2A
     GbCpuInstruction {
         dissasembly: "DEC HL",
@@ -290,22 +290,22 @@ pub static INSTRUCTIONS: [GbCpuInstruction; 256] = [
     GbCpuInstruction {
         dissasembly: "INC (HL)",
         operand_length: 0,
-        execute: None,
+        execute: Some(cpu_inc_nn_hl),
     }, // 0x34
     GbCpuInstruction {
         dissasembly: "DEC (HL)",
         operand_length: 0,
-        execute: None,
+        execute: Some(cpu_dec_nn_hl),
     }, // 0x35
     GbCpuInstruction {
         dissasembly: "LD (HL), d8",
         operand_length: 1,
-        execute: None,
+        execute: Some(cpu_ld_hl_n),
     }, // 0x36
     GbCpuInstruction {
         dissasembly: "SCF",
         operand_length: 0,
-        execute: None,
+        execute: Some(cpu_scf),
     }, // 0x37
     GbCpuInstruction {
         dissasembly: "JR C, s8",
@@ -318,9 +318,9 @@ pub static INSTRUCTIONS: [GbCpuInstruction; 256] = [
         execute: Some(cpu_add_hl_sp),
     }, // 0x39
     GbCpuInstruction {
-        dissasembly: "LD A, (HL-)",
+        dissasembly: "LDD A, (HL-)",
         operand_length: 0,
-        execute: None,
+        execute: Some(cpu_ldd_a_hl),
     }, // 0x3A
     GbCpuInstruction {
         dissasembly: "DEC SP",
@@ -345,7 +345,7 @@ pub static INSTRUCTIONS: [GbCpuInstruction; 256] = [
     GbCpuInstruction {
         dissasembly: "CCF",
         operand_length: 0,
-        execute: None,
+        execute: Some(cpu_ccf),
     }, // 0x3F
     GbCpuInstruction {
         dissasembly: "LD B, B",
@@ -1440,6 +1440,31 @@ fn cpu_ld_d_n(mut cpu: &mut Cpu, mut bus: &mut Bus) {
     cpu_routine_ld_8(&mut cpu, &mut bus, Reg8::D);
 } // 0x16
 
+fn cpu_rla(cpu: &mut Cpu, bus: &mut Bus) {
+    cpu.core_advance_cpu_clock(&mut bus.timer, 4);
+
+    cpu.registers.set_half_carry(false);
+    cpu.registers.set_zero(false);
+    cpu.registers.set_subtract(false);
+    let temp = cpu.registers.a;
+    let carry = cpu.registers.carry();
+    cpu.registers.set_carry(temp & 0x80 != 0);
+
+    cpu.registers.a = (cpu.registers.a << 1) | if carry { 1 } else { 0 };
+} // 0x17
+
+fn cpu_jr_n(cpu: &mut Cpu, bus: &mut Bus) {
+    cpu.core_advance_cpu_clock(&mut bus.timer, 4);
+
+    let temp = bus.memory.memory_bus_read(usize::from(cpu.registers.pc));
+    cpu.registers.pc = cpu.registers.pc.wrapping_add(1);
+    cpu.core_advance_cpu_clock(&mut bus.timer, 4);
+
+    cpu.core_advance_cpu_clock(&mut bus.timer, 4);
+    cpu.registers.pc += u16::from(temp);
+    cpu.core_advance_cpu_clock(&mut bus.timer, 4);
+} // 0x18
+
 fn cpu_add_hl_de(mut cpu: &mut Cpu, mut bus: &mut Bus) {
     cpu_routine_add_hl_16(&mut cpu, &mut bus, Reg16::DE);
 } // 0x19
@@ -1464,6 +1489,18 @@ fn cpu_ld_e_n(mut cpu: &mut Cpu, mut bus: &mut Bus) {
     cpu_routine_ld_8(&mut cpu, &mut bus, Reg8::E);
 } // 0x1E
 
+fn cpu_rra(cpu: &mut Cpu, bus: &mut Bus) {
+    cpu.core_advance_cpu_clock(&mut bus.timer, 4);
+
+    cpu.registers.set_half_carry(false);
+    cpu.registers.set_zero(false);
+    cpu.registers.set_subtract(false);
+    let temp = cpu.registers.a;
+    cpu.registers.set_carry(cpu.registers.a & 0x01 != 0);
+
+    cpu.registers.a = cpu.registers.a.shr(1) | temp.shl(7);
+} // 0x1F
+
 fn cpu_jr_nz_n(mut cpu: &mut Cpu, mut bus: &mut Bus) {
     let condition = cpu.registers.zero() == false;
     cpu_routine_jr_conditional_n(&mut cpu, &mut bus, condition);
@@ -1472,6 +1509,15 @@ fn cpu_jr_nz_n(mut cpu: &mut Cpu, mut bus: &mut Bus) {
 fn cpu_ld_hl_nn(mut cpu: &mut Cpu, mut bus: &mut Bus) {
     cpu_routine_ld_16(&mut cpu, &mut bus, Reg16::HL);
 } // 0x21
+
+fn cpu_ldi_hl_a(cpu: &mut Cpu, bus: &mut Bus) {
+    cpu.core_advance_cpu_clock(&mut bus.timer, 4);
+    bus.memory
+        .memory_bus_write(cpu.registers.hl() as usize, cpu.registers.a);
+    let temp = cpu.registers.hl().wrapping_add(1);
+    cpu.registers.set_hl(temp);
+    cpu.core_advance_cpu_clock(&mut bus.timer, 4);
+} // 0x22
 
 fn cpu_inc_hl(mut cpu: &mut Cpu, mut bus: &mut Bus) {
     cpu_routine_inc_16(&mut cpu, &mut bus, Reg16::HL);
@@ -1489,10 +1535,50 @@ fn cpu_ld_h_n(mut cpu: &mut Cpu, mut bus: &mut Bus) {
     cpu_routine_ld_8(&mut cpu, &mut bus, Reg8::H);
 } // 0x26
 
+fn cpu_daa(cpu: &mut Cpu, bus: &mut Bus) {
+    cpu.core_advance_cpu_clock(&mut bus.timer, 4);
+
+    if !cpu.registers.subtract() {
+        if cpu.registers.carry() || (cpu.registers.a > 0x99) {
+            cpu.registers.a += 0x60;
+            cpu.registers.set_carry(true);
+        }
+        if cpu.registers.half_carry() || ((cpu.registers.a & 0x0F) > 0x09) {
+            cpu.registers.a += 0x6;
+        }
+    } else {
+        if cpu.registers.carry() {
+            cpu.registers.a -= 0x60;
+        }
+        if cpu.registers.half_carry() {
+            cpu.registers.a -= 0x6;
+        }
+    }
+    cpu.registers.set_zero(cpu.registers.a == 0);
+    cpu.registers.set_half_carry(false);
+} // 0x27
+
 fn cpu_jr_z_n(mut cpu: &mut Cpu, mut bus: &mut Bus) {
     let condition = cpu.registers.zero() == true;
     cpu_routine_jr_conditional_n(&mut cpu, &mut bus, condition);
 } // 0x28
+
+fn cpu_add_hl_hl(cpu: &mut Cpu, bus: &mut Bus) {
+    cpu.core_advance_cpu_clock(&mut bus.timer, 4);
+    cpu.registers.set_subtract(false);
+    cpu.registers.set_carry((cpu.registers.hl() & 0xB000) != 0);
+    cpu.registers
+        .set_half_carry((cpu.registers.hl() & 0x0800) != 0);
+    cpu.core_advance_cpu_clock(&mut bus.timer, 4);
+    cpu.registers.set_hl(cpu.registers.hl().shl(1));
+} // 0x29
+
+fn cpu_ldi_a_hl(cpu: &mut Cpu, bus: &mut Bus) {
+    cpu.core_advance_cpu_clock(&mut bus.timer, 4);
+    cpu.registers.a = bus.memory.memory_bus_read(cpu.registers.hl() as usize);
+    cpu.core_advance_cpu_clock(&mut bus.timer, 4);
+    cpu.registers.set_hl(cpu.registers.hl() + 1);
+} // 0x2A
 
 fn cpu_dec_hl(mut cpu: &mut Cpu, mut bus: &mut Bus) {
     cpu_routine_dec_16(&mut cpu, &mut bus, Reg16::HL);
@@ -1511,10 +1597,10 @@ fn cpu_ld_l_n(mut cpu: &mut Cpu, mut bus: &mut Bus) {
 } // 0x2E
 
 fn cpu_cpl(cpu: &mut Cpu, bus: &mut Bus) {
-    cpu.registers.a = !cpu.registers.a;
+    cpu.core_advance_cpu_clock(&mut bus.timer, 4);
     cpu.registers.set_subtract(true);
     cpu.registers.set_half_carry(true);
-    cpu.core_advance_cpu_clock(&mut bus.timer, 4);
+    cpu.registers.a = !cpu.registers.a;
 } // 0x2F
 
 fn cpu_jr_nc_n(mut cpu: &mut Cpu, mut bus: &mut Bus) {
@@ -1530,6 +1616,47 @@ fn cpu_inc_sp(mut cpu: &mut Cpu, mut bus: &mut Bus) {
     cpu_routine_inc_16(&mut cpu, &mut bus, Reg16::SP);
 } // 0x33
 
+fn cpu_inc_nn_hl(cpu: &mut Cpu, bus: &mut Bus) {
+    cpu.core_advance_cpu_clock(&mut bus.timer, 4);
+    let mut temp = bus.memory.memory_bus_read(cpu.registers.hl() as usize);
+    cpu.core_advance_cpu_clock(&mut bus.timer, 4);
+    cpu.registers.set_subtract(false);
+    cpu.registers.set_half_carry(temp & 0x0F == 0);
+    temp = temp.wrapping_add(1);
+    cpu.registers.set_zero(temp == 0);
+    bus.memory
+        .memory_bus_write(cpu.registers.hl() as usize, temp);
+} // 0x34
+
+fn cpu_dec_nn_hl(cpu: &mut Cpu, bus: &mut Bus) {
+    cpu.core_advance_cpu_clock(&mut bus.timer, 4);
+    let mut temp = bus.memory.memory_bus_read(cpu.registers.hl() as usize);
+    cpu.core_advance_cpu_clock(&mut bus.timer, 4);
+    cpu.registers.set_subtract(false);
+    cpu.registers.set_half_carry(temp & 0x0F == 0);
+    temp = temp.wrapping_sub(1);
+    cpu.registers.set_zero(temp == 0);
+    bus.memory
+        .memory_bus_write(cpu.registers.hl() as usize, temp);
+} // 0x35
+
+fn cpu_ld_hl_n(cpu: &mut Cpu, bus: &mut Bus) {
+    cpu.core_advance_cpu_clock(&mut bus.timer, 4);
+    let temp = bus.memory.memory_bus_read(cpu.registers.pc as usize);
+    cpu.registers.pc = cpu.registers.pc.wrapping_add(1);
+    cpu.core_advance_cpu_clock(&mut bus.timer, 4);
+    bus.memory
+        .memory_bus_write(cpu.registers.hl() as usize, temp);
+    cpu.core_advance_cpu_clock(&mut bus.timer, 4);
+} // 0x36
+
+fn cpu_scf(cpu: &mut Cpu, bus: &mut Bus) {
+    cpu.registers.set_subtract(false);
+    cpu.registers.set_half_carry(false);
+    cpu.registers.set_carry(true);
+    cpu.core_advance_cpu_clock(&mut bus.timer, 4);
+} // 0x37
+
 fn cpu_jr_c_n(mut cpu: &mut Cpu, mut bus: &mut Bus) {
     let condition = cpu.registers.carry() == true;
     cpu_routine_jr_conditional_n(&mut cpu, &mut bus, condition);
@@ -1539,8 +1666,22 @@ fn cpu_add_hl_sp(mut cpu: &mut Cpu, mut bus: &mut Bus) {
     cpu_routine_add_hl_16(&mut cpu, &mut bus, Reg16::SP);
 } // 0x39
 
+fn cpu_ldd_a_hl(cpu: &mut Cpu, bus: &mut Bus) {
+    cpu.core_advance_cpu_clock(&mut bus.timer, 4);
+    cpu.registers.a = bus.memory.memory_bus_read(cpu.registers.hl() as usize);
+    cpu.core_advance_cpu_clock(&mut bus.timer, 4);
+    cpu.registers.set_hl(cpu.registers.hl() - 1);
+} // 0x3A
+
 fn cpu_dec_sp(mut cpu: &mut Cpu, mut bus: &mut Bus) {
     cpu_routine_dec_16(&mut cpu, &mut bus, Reg16::SP);
+} // 0x3B
+
+fn cpu_ccf(cpu: &mut Cpu, bus: &mut Bus) {
+    cpu.core_advance_cpu_clock(&mut bus.timer, 4);
+    cpu.registers.set_subtract(false);
+    cpu.registers.set_half_carry(false);
+    cpu.registers.set_carry(!cpu.registers.carry());
 } // 0x3B
 
 fn cpu_ld_b_b(cpu: &mut Cpu, bus: &mut Bus) {
