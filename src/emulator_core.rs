@@ -1,10 +1,8 @@
 use crate::{
     cart::{cart_load, cart_print_info},
-    cpu::{cpu_execute, cpu_fetch, cpu_reset},
-    timer::timer_advance_clocks,
+    gameboy::GameBoy,
 };
 
-pub static mut CORE_CLOCK_COUNTER: u32 = 0;
 static mut CORE_QUIT_REQUESTED: bool = false;
 
 pub fn core_init() -> bool {
@@ -23,11 +21,12 @@ pub fn core_init() -> bool {
 }
 
 pub fn core_run() {
-    cpu_reset();
+    let mut gb = GameBoy::new();
+    gb.cpu.cpu_reset();
 
     while !unsafe { CORE_QUIT_REQUESTED } {
-        cpu_fetch();
-        if !cpu_execute() {
+        gb.cpu.cpu_fetch(&mut gb.bus);
+        if !gb.cpu.cpu_execute(&mut gb.bus) {
             println!("CPU execution failed, requesting core shutdown");
             unsafe {
                 CORE_QUIT_REQUESTED = true;
@@ -43,15 +42,5 @@ pub fn core_shutdown() {
     println!("Shutting down core");
     unsafe {
         CORE_QUIT_REQUESTED = true;
-    }
-}
-
-/**
- * Advances the CPU clock by the specified number of clock cycles.
- */
-pub fn core_advance_cpu_clock(clocks: u8) {
-    timer_advance_clocks(clocks);
-    unsafe {
-        CORE_CLOCK_COUNTER += u32::from(clocks);
     }
 }

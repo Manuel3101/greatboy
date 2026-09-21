@@ -100,7 +100,7 @@ impl GbCpuRegisters {
     }
 
     pub fn af(&self) -> u16 {
-        u16::from_be_bytes([self.a, self.f])
+        u16::from_le_bytes([self.a, self.f])
     }
 
     pub fn set_af(&mut self, value: u16) {
@@ -110,7 +110,7 @@ impl GbCpuRegisters {
     }
 
     pub fn bc(&self) -> u16 {
-        u16::from_be_bytes([self.b, self.c])
+        u16::from_le_bytes([self.b, self.c])
     }
 
     pub fn set_bc(&mut self, value: u16) {
@@ -120,7 +120,7 @@ impl GbCpuRegisters {
     }
 
     pub fn de(&self) -> u16 {
-        u16::from_be_bytes([self.d, self.e])
+        u16::from_le_bytes([self.d, self.e])
     }
 
     pub fn set_de(&mut self, value: u16) {
@@ -130,7 +130,7 @@ impl GbCpuRegisters {
     }
 
     pub fn hl(&self) -> u16 {
-        u16::from_be_bytes([self.h, self.l])
+        u16::from_le_bytes([self.h, self.l])
     }
 
     pub fn set_hl(&mut self, value: u16) {
