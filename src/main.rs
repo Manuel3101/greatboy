@@ -1,11 +1,10 @@
 use crate::emulator_core::{core_init, core_run, core_shutdown};
 
+mod bus;
 mod cart;
 mod cpu;
-mod cpu_instructions;
-mod cpu_registers;
-mod cpu_routines;
 mod emulator_core;
+mod gameboy;
 mod memory_bus;
 mod timer;
 
